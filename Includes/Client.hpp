@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/11/22 16:52:03 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/11/29 16:08:40 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,24 @@ class Client {
     
     private:
     
-    int         _clientFd;
-    std::string _clientIp;
+    // Client informations
+    
+        int         _clientFd;
+        std::string _clientIp;
     
     public:
     
     // Constructor
-    Client();
+        
+        Client();
 
     // Getters
-    int getClientFd() const;
-    int getClientIp() const;
+        
+        int getClientFd() const;
+        int getClientIp() const;
 
     // Setters
-    void setClientFd(int clientFd);
-    void setClientIp(std::string clientIp);
-}
+    
+        void setClientFd(int clientFd);
+        void setClientIp(std::string clientIp);
+};
