@@ -6,12 +6,13 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/11/29 15:54:34 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/01 00:41:10 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 #include "Client.hpp"
+
 
 class Server {
     
@@ -20,9 +21,15 @@ class Server {
     // Server informations
     
         std::string _serverPswd;
-        static bool _serverStatus;
+        sockaddr_in _serverAdress;
+        bool        _serverStatus;
         int         _serverPort;
         int         _serverFd;
+    
+    // Epoll informations
+
+        int                 _epollFd;
+        struct epoll_event  _epollEvent;
 
     // Clients informations
     
@@ -46,7 +53,15 @@ class Server {
     
     // Socket(s) management
 
-        void    createSocket();
+        void    setupSocketAndEvents();
+        bool    createSocket();
+        bool    setSocketNonBlockingMode();
+        bool    bindSocketToAdress();
+        bool    setSocketOptions();
+
+    // Epoll management
+
+        bool    manageEpollAndEvents();
 
     // Client(s) management
 
@@ -61,4 +76,19 @@ class Server {
 
         void    closeFileDescriptors();
         void    clearClients(int fd);
+
+    // Setters
+        void    setServerFd(int serverFd);
+        void    setServerStatus(bool status);
+        void    setEpollFd(int epollFd);
+
+    // Getters
+        int                 getServerFd();
+        int                 getEpollFd();
+        int                 getServerPort();
+        bool                getServerStatus();
+        struct epoll_event  &getEpollEvent();
+
+    // Animation
+        static void    *serverIsRunningAnimation(void *);
 };
