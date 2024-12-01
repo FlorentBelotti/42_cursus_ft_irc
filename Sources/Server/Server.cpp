@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 00:45:38 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/01 19:03:33 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,142 +20,45 @@ void    *Server::serverIsRunningAnimation(void *arg) {
     
     std::cout << YELLOW << "Server: Is currently running";
     std::cout.flush();
-    while (server->getServerStatus() == false) {
+    while (server->getServerStatus() == true) {
         for (int i = 0; i < 3; i++) {
             usleep(500000);
             std::cout << ".";
             std::cout.flush();
         }
-        if (server->getServerStatus() == false) {
+        if (server->getServerStatus() == true) {
             usleep(500000);
             std::cout << "\b\b\b   \b\b\b";
             std::cout.flush();
         }
     }
     std::cout << std::endl;
-    std::cout << GREEN << "Server: Successfully created!" << std::endl;
     return NULL;
 }
 
-// Socket(s) management
+// Server's cleaner
 
-bool Server::bindSocketToAdress() {
-    
-    // Instance of of sockaddr_in called _serverAdress
-    
-    _serverAdress.sin_family = AF_INET;
-    _serverAdress.sin_port = htons(getServerPort());
-    _serverAdress.sin_addr.s_addr = INADDR_ANY;
-
-    // Bind the socket to the address and port
-    
-    if (bind(getServerFd(), (struct sockaddr *)&_serverAdress, sizeof(_serverAdress)) < 0) {
-        std::cerr << RED << "Error: Cannot bind the socket!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
+void Server::closeFileDescriptors() {
+    if (getServerFd() >= 0) {
         close(getServerFd());
-        return false;
+        setServerFd(-1);
     }
-    return true;
-}
-
-bool Server::setSocketNonBlockingMode() {
-    
-    // Remove previous flag from server's socket
-    
-    int sockFlags = fcntl(getServerFd(), F_GETFL, 0);
-    if (sockFlags == -1) {
-        std::cerr << RED << "Server: Error: Cannot get server socket's flag!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        return false;
-    }
-
-    // Add non-block flag to server's socket
-    
-    if (fcntl(getServerFd(), F_SETFL, sockFlags | O_NONBLOCK)) {
-        std::cerr << RED << "Server: Error: Cannot set server's socket to non-block!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        return false;
-    }
-    return true;
-}
-
-// Epoll and events
-
-bool    Server::manageEpollAndEvents() {
-    
-    // Create epoll instance 
-    
-    setEpollFd(epoll_create1(0));
-    if (getEpollFd() < 0) {
-        std::cerr << RED << "Server: Error: Cannot create epoll!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        close(getServerFd());
-        return false;
-    }
-    
-    // Configure epoll instance
-
-    this->_epollEvent.events = EPOLLIN;
-    this->_epollEvent.data.fd = getServerFd();
-
-    // Adding server's socket to epoll instance
-
-    if (epoll_ctl(getEpollFd(), EPOLL_CTL_ADD, getServerFd(), &(this->_epollEvent)) < 0)
-	{
-		std::cerr << "Error: Cannot add socket to epoll!" << std::endl;
-		std::cerr << strerror(errno) << std::endl;
-        close(getServerFd());
+    if (getEpollFd() >= 0) {
         close(getEpollFd());
-        return false;
-	}
-    return true;
-}
-
-bool Server::createSocket() {
-    setServerFd(socket(AF_INET, SOCK_STREAM, 0));
-    if (getServerFd() < 0) {
-        std::cerr << RED << "Server: Error: Cannot create the server socket!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        return false;
+        setEpollFd(-1);
     }
-    return true;
-}
-
-bool Server::setSocketOptions() {
-	int options = 1;
-	setsockopt(getServerFd(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &options, sizeof(options));
-	if (listen(getServerFd(), 10) < 0) {
-        std::cerr << RED << "Server: Error: Cannot listen on the socket!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        close(getServerFd());
-        return false;
-    }
-    return true;
-}
-
-void Server::setupSocketAndEvents() {
-    
-    bool    flag;
-
-    flag = createSocket();
-    flag = setSocketNonBlockingMode();
-    flag = bindSocketToAdress();
-    flag = setSocketOptions();
-    flag = manageEpollAndEvents();
-    if (!flag) {
-        setServerStatus(false);
-    }
-    setServerStatus(true);
-    std::cout << GREEN << "Server: successfully created!" << std::endl;
+    setServerStatus(false);
+    std::cerr << YELLOW << "Server: Cleanup completed." << RESET_COLOR << std::endl;
 }
 
 // Constructor
 
-Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _serverPort(port) {}
+Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _serverStatus(false), _serverPort(port), _serverFd(-1), _epollFd(-1) {}
 
 // Destructeur
 
 Server::~Server() {
+    closeFileDescriptors();
     std::cout << RED << "Server: Shut down." << RESET_COLOR << std::endl;
 }
 
@@ -175,19 +78,19 @@ void Server::setEpollFd(int epollFd) {
 
 // Getters
 
-int Server::getServerFd() {
+int Server::getServerFd() const {
     return (_serverFd);
 }
 
-int Server::getServerPort() {
+int Server::getServerPort() const {
     return (_serverPort);
 }
 
-int Server::getEpollFd() {
+int Server::getEpollFd() const {
     return (_epollFd);
 }
 
-bool Server::getServerStatus() {
+bool Server::getServerStatus() const {
     return (_serverStatus);
 }
 

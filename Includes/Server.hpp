@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 00:41:10 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/01 18:45:48 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,16 @@ class Server {
         std::vector<Client>         _clients;
         std::vector<struct pollfd>  _clientsFd;
     
+    // Error
+
+    enum SetupStep {
+        CREATE_SOCKET,
+        SET_NONBLOCKING,
+        BIND_SOCKET,
+        SET_OPTIONS,
+        MANAGE_EPOLL
+    };
+    
     // Abstract
         
         Server();
@@ -56,7 +66,7 @@ class Server {
         void    setupSocketAndEvents();
         bool    createSocket();
         bool    setSocketNonBlockingMode();
-        bool    bindSocketToAdress();
+        bool    bindSocketToAddress();
         bool    setSocketOptions();
 
     // Epoll management
@@ -77,17 +87,21 @@ class Server {
         void    closeFileDescriptors();
         void    clearClients(int fd);
 
+    // Error management
+    
+        void    manageSocketError(int step);
+    
     // Setters
         void    setServerFd(int serverFd);
         void    setServerStatus(bool status);
         void    setEpollFd(int epollFd);
 
     // Getters
-        int                 getServerFd();
-        int                 getEpollFd();
-        int                 getServerPort();
-        bool                getServerStatus();
-        struct epoll_event  &getEpollEvent();
+        int                 getServerFd() const;
+        int                 getEpollFd() const ;
+        int                 getServerPort() const ;
+        bool                getServerStatus() const ;
+        struct epoll_event  &getEpollEvent() ;
 
     // Animation
         static void    *serverIsRunningAnimation(void *);
