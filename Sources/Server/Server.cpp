@@ -6,34 +6,21 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 19:03:33 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/01 22:00:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/Server.hpp"
 
-// Animation management
+// Constructor
 
-void    *Server::serverIsRunningAnimation(void *arg) {
-    
-    Server* server = static_cast<Server*>(arg);
-    
-    std::cout << YELLOW << "Server: Is currently running";
-    std::cout.flush();
-    while (server->getServerStatus() == true) {
-        for (int i = 0; i < 3; i++) {
-            usleep(500000);
-            std::cout << ".";
-            std::cout.flush();
-        }
-        if (server->getServerStatus() == true) {
-            usleep(500000);
-            std::cout << "\b\b\b   \b\b\b";
-            std::cout.flush();
-        }
-    }
-    std::cout << std::endl;
-    return NULL;
+Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _serverStatus(false), _serverPort(port), _serverFd(-1), _epollFd(-1) {}
+
+// Destructeur
+
+Server::~Server() {
+    closeFileDescriptors();
+    std::cout << RED << "Server: Shut down." << RESET_COLOR << std::endl;
 }
 
 // Server's cleaner
@@ -49,17 +36,6 @@ void Server::closeFileDescriptors() {
     }
     setServerStatus(false);
     std::cerr << YELLOW << "Server: Cleanup completed." << RESET_COLOR << std::endl;
-}
-
-// Constructor
-
-Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _serverStatus(false), _serverPort(port), _serverFd(-1), _epollFd(-1) {}
-
-// Destructeur
-
-Server::~Server() {
-    closeFileDescriptors();
-    std::cout << RED << "Server: Shut down." << RESET_COLOR << std::endl;
 }
 
 // Setters

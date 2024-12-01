@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 18:45:48 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/01 21:30:14 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,4 +105,8 @@ class Server {
 
     // Animation
         static void    *serverIsRunningAnimation(void *);
+
+    // Dashboard
+    static void *startDashboard(void *arg);
+    void        printDashboard() const;
 };

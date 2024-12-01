@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:44:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/11/30 23:46:48 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/01 21:39:05 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cerrno>
+#include <ctime>
+#include <iomanip>
 
 // Containers
 
