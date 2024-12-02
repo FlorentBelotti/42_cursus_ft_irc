@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 21:30:14 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/02 15:51:40 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,16 +78,12 @@ class Server {
         void    newClient();
         void    receiveDataFromClient();
 
-    // Signal(s) management
-
-        static void handleSignal(int sigId);
-
     // Server's cleaners
 
         void    closeFileDescriptors();
         void    clearClients(int fd);
 
-    // Error management
+    // Error(s) management
     
         void    manageSocketError(int step);
     

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 22:00:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/02 16:03:18 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _s
 
 Server::~Server() {
     closeFileDescriptors();
-    std::cout << RED << "Server: Shut down." << RESET_COLOR << std::endl;
+    std::cout << RED << "SERVER: Shut down." << RESET_COLOR << std::endl;
 }
 
 // Server's cleaner
@@ -35,7 +35,7 @@ void Server::closeFileDescriptors() {
         setEpollFd(-1);
     }
     setServerStatus(false);
-    std::cerr << YELLOW << "Server: Cleanup completed." << RESET_COLOR << std::endl;
+    std::cerr << YELLOW << "SERVER: Cleanup completed." << RESET_COLOR << std::endl;
 }
 
 // Setters
