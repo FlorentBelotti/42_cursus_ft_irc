@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/02 15:51:40 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/12 18:12:41 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Server {
 
         int                 _epollFd;
         struct epoll_event  _epollEvent;
+        struct epoll_event  _epollEventsArr[CLIENT_NB];
 
     // Clients informations
     
@@ -73,6 +74,10 @@ class Server {
 
         bool    manageEpollAndEvents();
 
+    // Loop
+
+        void    serverLoop();
+
     // Client(s) management
 
         void    newClient();
@@ -98,11 +103,12 @@ class Server {
         int                 getServerPort() const ;
         bool                getServerStatus() const ;
         struct epoll_event  &getEpollEvent() ;
+        struct epoll_event  *getEpollEventsArr() ;
 
     // Animation
         static void    *serverIsRunningAnimation(void *);
 
     // Dashboard
-    static void *startDashboard(void *arg);
-    void        printDashboard() const;
+        static void *startDashboard(void *arg);
+        void        printDashboard() const;
 };

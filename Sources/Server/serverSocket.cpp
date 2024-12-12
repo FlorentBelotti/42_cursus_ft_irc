@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/01 18:47:06 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/02 16:23:07 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/12 18:11:42 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ bool Server::createSocket() {
 bool Server::setSocketOptions() {
 	int options = 1;
 	setsockopt(getServerFd(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &options, sizeof(options));
-	if (listen(getServerFd(), 10) < 0)
+	if (listen(getServerFd(), CLIENT_NB) < 0)
         return false;
     return true;
 }

@@ -6,9 +6,13 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:44:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/01 21:39:05 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/12 21:51:49 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+// Define
+
+#define CLIENT_NB 10
 
 // Custom
 
@@ -42,3 +46,4 @@
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 #include <poll.h>
+#include <netdb.h>
