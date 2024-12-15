@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 21:51:12 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/16 00:28:24 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,6 @@ class Server {
     
         std::map<int, Client *>       _clients;
         std::vector<struct pollfd>  _clientsFd;
-    
-        enum eventType {
-            NEW_CLIENT,
-            NEW_EVENT
-        };
     
     // Error
     
@@ -82,11 +77,13 @@ class Server {
     // Loop
 
         void    serverLoop();
+        void    handleClientEvent(int user_fd);
+        void    handleNewClient();
 
     // Server's cleaners
 
         void    closeFileDescriptors();
-        void    clearClients(int fd);
+        void    clearClients();
 
     // Error(s) management
     

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 23:03:31 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/16 00:39:39 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,90 +19,108 @@ Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _s
 // Destructeur
 
 Server::~Server() {
-    closeFileDescriptors();
     std::cout << RED << "SERVER: Shut down." << RESET_COLOR << std::endl;
 }
 
 // Server Loop
 
+void Server::handleNewClient() {
+    sockaddr_in newClientAddr;
+    socklen_t newClientSize = sizeof(newClientAddr);
+
+    int newClientFd = accept(getServerFd(), (struct sockaddr *)&newClientAddr, &newClientSize);
+    if (newClientFd < 0) {
+        std::cerr << "SERVER: ERROR: Can't accept new client connection!" << std::endl;
+        std::cerr << strerror(errno) << std::endl;
+        return;
+    }
+
+    // Define hostname
+    
+    char host[NI_MAXHOST];
+    char service[NI_MAXSERV];
+    if (getnameinfo((struct sockaddr *)&newClientAddr, newClientSize, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV) != 0) {
+        close(newClientFd);
+        return;
+    }
+
+    // Add client to epoll
+    
+    getEpollEvent().events = EPOLLIN;
+    getEpollEvent().data.fd = newClientFd;
+    if (epoll_ctl(getEpollFd(), EPOLL_CTL_ADD, newClientFd, &getEpollEvent()) < 0) {
+        std::cerr << RED << "SERVER: ERROR: Can't add client to epoll!" << RESET_COLOR << std::endl;
+        std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
+        close(newClientFd);
+        return;
+    }
+
+    std::cout << GREEN << "SERVER: New client successfully added!" << RESET_COLOR << std::endl;
+
+    // Save new client
+    
+    this->_clients[newClientFd] = new Client(newClientFd, std::string(host));
+}
+
+void Server::handleClientEvent(int user_fd) {
+    
+    char buffer[1024] = {0};
+    int bytes_received = recv(user_fd, buffer, sizeof(buffer) - 1, 0);
+
+    // Client message
+
+    if (bytes_received > 0) {
+        std::cout << YELLOW << "[" << _clients[user_fd]->getClientHostname() << "]: " << RESET_COLOR << buffer << std::endl;
+        send(user_fd, "Message received", 16, 0);
+    } 
+    
+    // Client disconnected
+    
+    else {
+        epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
+        std::cout << RED << "[" << _clients[user_fd]->getClientHostname() << "]: Disconnected." << RESET_COLOR << std::endl;
+        delete this->_clients[user_fd];
+        this->_clients.erase(user_fd);
+        close(user_fd);
+    }
+}
+
 extern int stopSignal;
 void Server::serverLoop() {
     while (getServerStatus() && !stopSignal) {
-
-        // Check which file descriptor is waiting for an event to occur    
+        
+        // Listen for events
         int numFdsEvents = epoll_wait(getEpollFd(), getEpollEventsArr(), CLIENT_NB, -1);
 
         for (int i = 0; i < numFdsEvents; ++i) {
+
+            // New client connection
             
-            // Look for a new client connexion
             if (getEpollEventsArr()[i].data.fd == getServerFd()) {
-                
-                sockaddr_in newClientAddr;
-                socklen_t newClientSize = sizeof(newClientAddr);
-                
-                int newClientFd = accept(getServerFd(), (struct sockaddr *)&newClientAddr, &newClientSize);
-                if (newClientFd < 0) {
-                    std::cerr << "SERVER: ERROR: Can't accept new client connection!" << std::endl;
-                    std::cerr << strerror(errno) << std::endl;
-                    continue;
-                }
-
-                // Solve new client's host name
-                char host[NI_MAXHOST];
-                char service[NI_MAXSERV];
-                if (getnameinfo((struct sockaddr *)&newClientAddr, newClientSize, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV) != 0) {
-                    close(newClientFd);
-                    continue;
-                }
-
-                // Add new client to epoll
-                getEpollEvent().events = EPOLLIN;
-                getEpollEvent().data.fd = newClientFd;
-
-                if (epoll_ctl(getEpollFd(), EPOLL_CTL_ADD, newClientFd, &getEpollEvent()) < 0) {
-                    std::cerr << RED << "SERVER: ERROR: Can't add client to epoll!" << RESET_COLOR << std::endl;
-                    std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
-                    close(newClientFd);
-                }
-
-                std::cout << GREEN << "SERVER: New client successfully added!" << RESET_COLOR << std::endl;
-                
-                // Register new client
-                
-                this->_clients[newClientFd] = new Client(newClientFd, std::string(host));
-            }
+                handleNewClient();
+            } 
+            
+            // Client event
+            
             else {
-				char    buffer[1024] = {0};
-				int     user_fd = this->_epollEventsArr[i].data.fd;
-				int     bytes_received = recv(user_fd, buffer, sizeof(buffer) - 1, 0);
-
-				if (bytes_received > 0)
-				{
-					std::cout << YELLOW << "[" << user_fd << "]: " << RESET_COLOR << buffer << std::endl;
-                    send(user_fd, "Message received", 16, 0);
-                }
-				else
-				{
-                    epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
-                    close(user_fd);
-					delete this->_clients[user_fd];
-                    this->_clients.erase(user_fd);
-                    std::cout << RED << "[" << user_fd << "]: Disconnected. " << RESET_COLOR << buffer << std::endl;                    
-				}
+                int user_fd = getEpollEventsArr()[i].data.fd;
+                handleClientEvent(user_fd);
             }
         }
     }
-    setServerStatus(false);
+    clearClients();
+    closeFileDescriptors();
+}
+
+// Server's cleaner
+
+void Server::clearClients() {
     for (std::map<int, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
     {
         close(it->first);
         delete it->second;
     }
-    close(this->getServerFd());
-    close(this->getEpollFd());
 }
-
-// Server's cleaner
 
 void Server::closeFileDescriptors() {
     if (getServerFd() >= 0) {

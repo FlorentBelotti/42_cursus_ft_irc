@@ -44,6 +44,8 @@ void simulateClient(const char *server_ip, int server_port) {
     read(sock, buffer, 1024);
     std::cout << "Client: Server response: " << buffer << std::endl;
 
+    //usleep(1000000000);
+
     // close connexion
     close(sock);
     std::cout << "Client: Disconnected" << std::endl;
@@ -56,7 +58,7 @@ int main(int argc, char const *argv[]) {
     }
 
     const char* server_ip = argv[1];
-    int server_port = std::atoi(argv[2]);
+    int server_port = std::atoi(argv[2]); // Utilisez std::atoi
 
     simulateClient(server_ip, server_port);
 
