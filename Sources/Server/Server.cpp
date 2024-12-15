@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 22:19:27 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/15 23:03:31 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,28 +79,27 @@ void Server::serverLoop() {
 				if (bytes_received > 0)
 				{
 					std::cout << YELLOW << "[" << user_fd << "]: " << RESET_COLOR << buffer << std::endl;
-                    std::cout << buffer << std::endl;
-				}
-				else if (bytes_received == 0)
+                    send(user_fd, "Message received", 16, 0);
+                }
+				else
 				{
                     epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
+                    close(user_fd);
 					delete this->_clients[user_fd];
                     this->_clients.erase(user_fd);
-                    close(user_fd);
-                    std::cout << RED << "[" << user_fd << "]: disconnected. " << RESET_COLOR << buffer << std::endl;                    
+                    std::cout << RED << "[" << user_fd << "]: Disconnected. " << RESET_COLOR << buffer << std::endl;                    
 				}
-                else {
-                    std::cerr << RED << "SERVER: ERROR: recv failed for client " << user_fd << RESET_COLOR << std::endl;
-                    std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
-                    epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
-                    close(user_fd);
-                    delete this->_clients[user_fd];
-                    this->_clients.erase(user_fd);
-                }
             }
         }
     }
     setServerStatus(false);
+    for (std::map<int, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
+    {
+        close(it->first);
+        delete it->second;
+    }
+    close(this->getServerFd());
+    close(this->getEpollFd());
 }
 
 // Server's cleaner

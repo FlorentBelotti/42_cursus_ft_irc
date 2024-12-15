@@ -6,11 +6,11 @@
 #    By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 16:56:14 by fbelotti          #+#    #+#              #
-#    Updated: 2024/12/15 23:32:22 by fbelotti         ###   ########.fr        #
+#    Updated: 2024/12/15 23:33:06 by fbelotti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = ft_irc
+NAME = client_tester
 AUTHOR = Florent Belotti
 
 CXX = c++
@@ -23,7 +23,7 @@ INCLUDES = -I./Includes -I/opt/homebrew/Cellar/readline/8.2.10/include
 SRCDIR = .
 OBJDIR = obj
 
-SRC = $(shell find $(SRCDIR) -name \*.cpp -type f -not -path "./Test/*" -print)
+SRC = $(shell find $(SRCDIR) -name \*.cpp -type f -print)
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
 
 DEPS = $(OBJ:.o=.d)
