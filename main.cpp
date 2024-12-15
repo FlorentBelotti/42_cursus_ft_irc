@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:35:59 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/02 16:31:09 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/15 22:11:49 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,11 @@ int main(int ac, char **av) {
     else {
         signal(SIGINT, manageSignal);
         signal(SIGQUIT, manageSignal);
-        //usleep(50000000);
+        server.serverLoop();
     }
+    return 0;
+}
     
-
     // pthread_t dashboardThread;
     // if (pthread_create(&dashboardThread, NULL, Server::startDashboard, &server) != 0) {
     //     std::cerr << RED << "ERROR: Cannot create dashboard thread!" << RESET_COLOR << std::endl;
@@ -65,4 +66,3 @@ int main(int ac, char **av) {
     // std::cout << "Server socket: " << server.getServerFd() << std::endl;
     // std::cout << "Server port: " << server.getServerPort() << std::endl;
     // std::cout << std::endl;
-}

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/12 18:12:41 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/15 21:51:12 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,19 +34,24 @@ class Server {
 
     // Clients informations
     
-        std::vector<Client>         _clients;
+        std::map<int, Client *>       _clients;
         std::vector<struct pollfd>  _clientsFd;
     
-    // Error
-
-    enum SetupStep {
-        CREATE_SOCKET,
-        SET_NONBLOCKING,
-        BIND_SOCKET,
-        SET_OPTIONS,
-        MANAGE_EPOLL
-    };
+        enum eventType {
+            NEW_CLIENT,
+            NEW_EVENT
+        };
     
+    // Error
+    
+        enum setupStep {
+            CREATE_SOCKET,
+            SET_NONBLOCKING,
+            BIND_SOCKET,
+            SET_OPTIONS,
+            MANAGE_EPOLL
+        };
+        
     // Abstract
         
         Server();
@@ -77,11 +82,6 @@ class Server {
     // Loop
 
         void    serverLoop();
-
-    // Client(s) management
-
-        void    newClient();
-        void    receiveDataFromClient();
 
     // Server's cleaners
 

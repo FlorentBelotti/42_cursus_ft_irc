@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/12 22:16:27 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/15 22:19:27 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,21 +25,20 @@ Server::~Server() {
 
 // Server Loop
 
+extern int stopSignal;
 void Server::serverLoop() {
-    while (getServerStatus()) {
+    while (getServerStatus() && !stopSignal) {
 
         // Check which file descriptor is waiting for an event to occur    
-    
         int numFdsEvents = epoll_wait(getEpollFd(), getEpollEventsArr(), CLIENT_NB, -1);
 
         for (int i = 0; i < numFdsEvents; ++i) {
             
             // Look for a new client connexion
-
             if (getEpollEventsArr()[i].data.fd == getServerFd()) {
                 
                 sockaddr_in newClientAddr;
-                socklen_t   newClientSize = sizeof(newClientAddr);
+                socklen_t newClientSize = sizeof(newClientAddr);
                 
                 int newClientFd = accept(getServerFd(), (struct sockaddr *)&newClientAddr, &newClientSize);
                 if (newClientFd < 0) {
@@ -48,43 +47,60 @@ void Server::serverLoop() {
                     continue;
                 }
 
-            // Solve new client's host name
-
-                // Usefull flag (Dashboard) :
-                    // NI_NOFQDN: only local host name,
-                    // NI_NUMERICHOST: numeric adress,
-                    // NI_NAMEREQD: failure in case of unindentified host,
-                    // NI_NUMERICSERV: only port number.
-
-            char host[NI_MAXHOST];
-            char service[NI_MAXSERV];
-            if (getnameinfo((struct sockaddr *)&newClientAddr, newClientSize, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV) != 0) {
+                // Solve new client's host name
+                char host[NI_MAXHOST];
+                char service[NI_MAXSERV];
+                if (getnameinfo((struct sockaddr *)&newClientAddr, newClientSize, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV) != 0) {
                     close(newClientFd);
                     continue;
                 }
 
-            // Add new client to epoll
+                // Add new client to epoll
+                getEpollEvent().events = EPOLLIN;
+                getEpollEvent().data.fd = newClientFd;
 
-            getEpollEvent().events = EPOLLIN;
-            getEpollEvent().data.fd = newClientFd;
+                if (epoll_ctl(getEpollFd(), EPOLL_CTL_ADD, newClientFd, &getEpollEvent()) < 0) {
+                    std::cerr << RED << "SERVER: ERROR: Can't add client to epoll!" << RESET_COLOR << std::endl;
+                    std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
+                    close(newClientFd);
+                }
 
-            	if (epoll_ctl(getEpollFd(), EPOLL_CTL_ADD, newClientFd, &getEpollEvent()) < 0)
-				{
-					std::cerr << RED << "SERVER: ERROR: Can't add client to epoll!" << RESET_COLOR << std::endl;
-					std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
-					close(newClientFd);
-				}
-
-				std::cout << GREEN << "SERVER: New client successfully added!" << RESET_COLOR << std::endl;
-				
-                // Client class to setup.
-                // this->clients[newsockfd] = new IrcClient(newsockfd, std::string(host));
+                std::cout << GREEN << "SERVER: New client successfully added!" << RESET_COLOR << std::endl;
+                
+                // Register new client
+                
+                this->_clients[newClientFd] = new Client(newClientFd, std::string(host));
             }
             else {
-                // To continue.
+				char    buffer[1024] = {0};
+				int     user_fd = this->_epollEventsArr[i].data.fd;
+				int     bytes_received = recv(user_fd, buffer, sizeof(buffer) - 1, 0);
+
+				if (bytes_received > 0)
+				{
+					std::cout << YELLOW << "[" << user_fd << "]: " << RESET_COLOR << buffer << std::endl;
+                    std::cout << buffer << std::endl;
+				}
+				else if (bytes_received == 0)
+				{
+                    epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
+					delete this->_clients[user_fd];
+                    this->_clients.erase(user_fd);
+                    close(user_fd);
+                    std::cout << RED << "[" << user_fd << "]: disconnected. " << RESET_COLOR << buffer << std::endl;                    
+				}
+                else {
+                    std::cerr << RED << "SERVER: ERROR: recv failed for client " << user_fd << RESET_COLOR << std::endl;
+                    std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
+                    epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
+                    close(user_fd);
+                    delete this->_clients[user_fd];
+                    this->_clients.erase(user_fd);
+                }
             }
         }
     }
+    setServerStatus(false);
 }
 
 // Server's cleaner

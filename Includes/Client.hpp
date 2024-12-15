@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/13 15:59:37 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/15 19:34:20 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ class Client {
     
     // Constructor
         
-        Client(int newClientFd, std::string host);
+        Client(int newClientFd, std::string hostname);
 
     // Destructor
 
@@ -46,24 +46,28 @@ class Client {
 
     // Getters
         
-        int getClientFd() const;
-        int getClientHostname() const;
-        int getClientNickname() const;
-        int getClientUsername() const;
-        int getClientBuffer() const;
-        int getClientBotStatus() const;
-        int getClientLogStatus() const;
-        int getClientPswdTries() const;
+        std::string getClientHostname() const;
+        std::string getClientNickname() const;
+        std::string getClientUsername() const;
+        std::string getClientBuffer() const;
+        bool        getClientBotStatus() const;
+        bool        getClientLogStatus() const;
+        int         getClientFd() const;
+        int         getClientPswdTries() const;
         
     // Setters
     
         void setClientFd(int clientFd);
         void setClientIp(std::string clientIp);
-        void setClientHostname(std::string hostname) const;
-        void setClientNickname(std::string nickname) const;
-        void setClientUsername(std::string username) const;
-        void setClientBuffer(std::string buffer) const;
-        void setClientBotStatus(bool status) const;
-        void setClientLogStatus(bool status) const;
-        void setClientPswdTries(bool status) const;
+        void setClientHostname(std::string hostname);
+        void setClientNickname(std::string nickname);
+        void setClientUsername(std::string username);
+        void setClientBuffer(std::string buffer);
+        void setClientBotStatus(bool status);
+        void setClientLogStatus(bool status);
+        void setClientPswdTries(int tries);
+
+    // Methods
+
+        
 };
