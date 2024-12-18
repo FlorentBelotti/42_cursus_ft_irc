@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/16 00:39:39 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/17 14:58:22 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void Server::handleNewClient() {
 
     // Save new client
     
-    this->_clients[newClientFd] = new Client(newClientFd, std::string(host));
+    getClients()[newClientFd] = new Client(newClientFd, std::string(host));
 }
 
 void Server::handleClientEvent(int user_fd) {
@@ -70,19 +70,33 @@ void Server::handleClientEvent(int user_fd) {
     // Client message
 
     if (bytes_received > 0) {
-        std::cout << YELLOW << "[" << _clients[user_fd]->getClientHostname() << "]: " << RESET_COLOR << buffer << std::endl;
-        send(user_fd, "Message received", 16, 0);
+        
+        handleMessage(buffer, user_fd);
+        // std::cout << YELLOW << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << buffer << std::endl;
+        // send(user_fd, "Message received", 16, 0);
     } 
     
     // Client disconnected
     
     else {
         epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
-        std::cout << RED << "[" << _clients[user_fd]->getClientHostname() << "]: Disconnected." << RESET_COLOR << std::endl;
-        delete this->_clients[user_fd];
-        this->_clients.erase(user_fd);
+        std::cout << RED << "[" << getClients()[user_fd]->getClientHostname() << "]: Disconnected." << RESET_COLOR << std::endl;
+        delete getClients()[user_fd];
+        getClients().erase(user_fd);
         close(user_fd);
     }
+}
+
+void Server::handleMessage(std::string const &msg, int user_fd) {
+    
+    // Handle server's response to message
+    
+    std::cout << YELLOW << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
+    send(user_fd, "Message received", 16, 0); // To check
+    if (msg[0] == '/')
+        handleCommand(msg, user_fd);
+    else
+        handleChannelMessage(msg, user_fd);
 }
 
 extern int stopSignal;
@@ -90,6 +104,7 @@ void Server::serverLoop() {
     while (getServerStatus() && !stopSignal) {
         
         // Listen for events
+        
         int numFdsEvents = epoll_wait(getEpollFd(), getEpollEventsArr(), CLIENT_NB, -1);
 
         for (int i = 0; i < numFdsEvents; ++i) {
@@ -115,7 +130,7 @@ void Server::serverLoop() {
 // Server's cleaner
 
 void Server::clearClients() {
-    for (std::map<int, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
+    for (std::map<int, Client *>::iterator it = getClients().begin(); it != getClients().end(); ++it)
     {
         close(it->first);
         delete it->second;
@@ -173,4 +188,8 @@ struct epoll_event &Server::getEpollEvent() {
 
 struct epoll_event *Server::getEpollEventsArr() {
     return (_epollEventsArr);
+}
+
+std::map<int, Client *> &Server::getClients() {
+    return (_clients);
 }

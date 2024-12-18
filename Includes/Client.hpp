@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 19:34:20 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/17 14:59:03 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Client {
     
         bool    _isLogged;
         bool    _isBot;
+        bool    _isOperator;
         int     _pswdTries;
     
     // Client's connexion
@@ -33,6 +34,7 @@ class Client {
         std::string _nickname;
         std::string _username;
         std::string _buffer;
+        std::map<std::string, Channel *> _clientChannels;
     
     public:
     
@@ -52,8 +54,10 @@ class Client {
         std::string getClientBuffer() const;
         bool        getClientBotStatus() const;
         bool        getClientLogStatus() const;
+        bool        getOperatorStatus() const;
         int         getClientFd() const;
         int         getClientPswdTries() const;
+        
         
     // Setters
     

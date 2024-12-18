@@ -6,14 +6,13 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/16 00:28:24 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/17 13:46:28 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 #include "Client.hpp"
-
-
+#include "Channel.hpp"
 class Server {
     
     private:
@@ -34,8 +33,29 @@ class Server {
 
     // Clients informations
     
-        std::map<int, Client *>       _clients;
+        std::map<int, Client *>     _clients;
         std::vector<struct pollfd>  _clientsFd;
+    
+    // Channels informations
+    
+        std::map<std::string, Channel *> _channels;
+    
+    // Commands
+
+        enum commands {
+            NICKNAME, // Define user pseudo
+            USER, // Define user infos : USER <username> <hostname> <servername> <realname>
+            JOIN, // Join a channel : JOIN <#channel>
+            PART, // Leave a channel : PART <#channel>
+            PRIVMSG, // Send a message : PRIVMSG <#channel> :<message>
+            NOTICE, // Send a notice : NOTICE <#channel> :<message>
+            PING, // Ping the server : PING <server>
+            PONG, // Pong the server : PONG <server>
+            QUIT, // Quit the server : QUIT <message>
+            TOPIC, // Set the topic : TOPIC <#channel> :<topic>
+            INVITE, // Invite a user : INVITE <nickname> <#channel>
+            KICK, // Kick a user : KICK <#channel> <nickname> :<reason>
+        };
     
     // Error
     
@@ -79,6 +99,7 @@ class Server {
         void    serverLoop();
         void    handleClientEvent(int user_fd);
         void    handleNewClient();
+        void    handleMessage(std::string const &msg, int user_fd);
 
     // Server's cleaners
 
@@ -95,12 +116,13 @@ class Server {
         void    setEpollFd(int epollFd);
 
     // Getters
-        int                 getServerFd() const;
-        int                 getEpollFd() const ;
-        int                 getServerPort() const ;
-        bool                getServerStatus() const ;
-        struct epoll_event  &getEpollEvent() ;
-        struct epoll_event  *getEpollEventsArr() ;
+        int                     getServerFd() const;
+        int                     getEpollFd() const ;
+        int                     getServerPort() const ;
+        bool                    getServerStatus() const ;
+        struct epoll_event      &getEpollEvent() ;
+        struct epoll_event      *getEpollEventsArr() ;
+        std::map<int, Client *> &getClients() ;
 
     // Animation
         static void    *serverIsRunningAnimation(void *);

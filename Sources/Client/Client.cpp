@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/15 17:21:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 22:11:17 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/16 15:24:32 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,10 @@ bool Client::getClientLogStatus() const {
 
 int Client::getClientPswdTries() const {
     return _pswdTries;
+}
+
+bool Client::getOperatorStatus() const {
+    return _isOperator;
 }
         
 // Setters
