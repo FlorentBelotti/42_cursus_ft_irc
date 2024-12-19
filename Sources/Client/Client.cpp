@@ -6,11 +6,11 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/15 17:21:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/16 15:24:32 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/19 12:36:05 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/Client.hpp"
+#include "../../Includes/Client.hpp"
 
 // Constructor
 
@@ -80,8 +80,8 @@ void Client::setClientUsername(std::string username) {
     _username = username;
 }
 
-void Client::setClientBuffer(std::string buffer) {
-    _buffer = buffer;
+void Client::setClientBuffer(std::string msg) {
+    _buffer += msg;
 }
 
 void Client::setClientBotStatus(bool status) {
@@ -94,4 +94,63 @@ void Client::setClientLogStatus(bool status) {
 
 void Client::setClientPswdTries(int tries) {
     _pswdTries = tries;
+}
+
+void Client::setClientOperatorStatus(bool status) {
+    _isOperator = status;
+}
+
+void Client::setClientChannel(std::string channelName, Channel *channel) {
+    _clientChannels[channelName] = channel;
+}
+
+void Client::removeClientChannel(std::string channelName) {
+    _clientChannels.erase(channelName);
+}
+
+// Commands
+
+bool Client::isValidName(const std::string& name) {
+    if (name.length() > 16) {
+        return false;
+    }
+    for (size_t i = 0; i < name.length(); ++i) {
+        if (!isalnum(name[i]) && name[i] != '_' && name[i] != '-') {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Client::clientNickname(const std::string &args) {
+    
+    if (args.empty() || args.find(' ') != std::string::npos) {
+        std::string errorMsg = "USAGE : /nickname <nickname>";
+        sendMessage(errorMsg);
+        return;
+    }
+
+    if (!isValidName(args)) {
+        std::string errorMsg = "USAGE: Nickname must be 16 characters max and contain only letters, digits, '_', and '-'.";
+        sendMessage(errorMsg);
+        return;
+    }
+
+    setClientNickname(args);
+    std::string successMsg = "SERVER: Nickname changed to " + args;
+    sendMessage(successMsg);
+}
+
+// Methods
+
+void Client::sendMessage(std::string const &msg) {
+    std::cout << YELLOW << "Sending message to client: " << msg << RESET_COLOR << std::endl;
+}irc
+
+void Client::sendFile(std::string const &file) {
+    (void)file;
+}
+
+void Client::sendInvite(Client const *client) {
+    (void)client;
 }

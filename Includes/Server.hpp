@@ -6,9 +6,12 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/17 13:46:28 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:23:07 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
 #include "utils.hpp"
 #include "Client.hpp"
@@ -39,23 +42,6 @@ class Server {
     // Channels informations
     
         std::map<std::string, Channel *> _channels;
-    
-    // Commands
-
-        enum commands {
-            NICKNAME, // Define user pseudo
-            USER, // Define user infos : USER <username> <hostname> <servername> <realname>
-            JOIN, // Join a channel : JOIN <#channel>
-            PART, // Leave a channel : PART <#channel>
-            PRIVMSG, // Send a message : PRIVMSG <#channel> :<message>
-            NOTICE, // Send a notice : NOTICE <#channel> :<message>
-            PING, // Ping the server : PING <server>
-            PONG, // Pong the server : PONG <server>
-            QUIT, // Quit the server : QUIT <message>
-            TOPIC, // Set the topic : TOPIC <#channel> :<topic>
-            INVITE, // Invite a user : INVITE <nickname> <#channel>
-            KICK, // Kick a user : KICK <#channel> <nickname> :<reason>
-        };
     
     // Error
     
@@ -99,9 +85,30 @@ class Server {
         void    serverLoop();
         void    handleClientEvent(int user_fd);
         void    handleNewClient();
-        void    handleMessage(std::string const &msg, int user_fd);
-
-    // Server's cleaners
+        
+    // Message and commands
+        
+        enum commands {
+            NICKNAME, // Define user pseudo
+            USER, // Define user infos : USER <username> <hostname> <servername> <realname>
+            JOIN, // Join a channel : JOIN <#channel>
+            PART, // Leave a channel : PART <#channel>
+            PRIVMSG, // Send a message : PRIVMSG <#channel> :<message>
+            NOTICE, // Send a notice : NOTICE <#channel> :<message>
+            PING, // Ping the server : PING <server>
+            PONG, // Pong the server : PONG <server>
+            QUIT, // Quit the server : QUIT <message>
+            TOPIC, // Set the topic : TOPIC <#channel> :<topic>
+            INVITE, // Invite a user : INVITE <nickname> <#channel>
+            KICK, // Kick a user : KICK <#channel> <nickname> :<reason>
+            HELP // Help command
+        };
+    
+        void                handleMessage(std::string const &msg, int user_fd);
+        void                processClientCommand(const std::string &command, const std::string &args, int user_fd);
+        Server::commands    defineCommand(const std::string &command);
+   
+   // Server's cleaners
 
         void    closeFileDescriptors();
         void    clearClients();
@@ -131,3 +138,5 @@ class Server {
         static void *startDashboard(void *arg);
         void        printDashboard() const;
 };
+
+#endif

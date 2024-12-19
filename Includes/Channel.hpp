@@ -6,13 +6,15 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/16 15:35:29 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:06:22 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 #include "utils.hpp"
 #include "Client.hpp"
 
+class Client;
 class Channel {
     
     private:

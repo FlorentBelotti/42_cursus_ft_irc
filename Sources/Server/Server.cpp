@@ -6,11 +6,11 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/17 14:58:22 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:33:45 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/Server.hpp"
+#include "../../Includes/Server.hpp"
 
 // Constructor
 
@@ -73,7 +73,7 @@ void Server::handleClientEvent(int user_fd) {
         
         handleMessage(buffer, user_fd);
         // std::cout << YELLOW << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << buffer << std::endl;
-        // send(user_fd, "Message received", 16, 0);
+        send(user_fd, "Message received", 16, 0);
     } 
     
     // Client disconnected
@@ -85,18 +85,6 @@ void Server::handleClientEvent(int user_fd) {
         getClients().erase(user_fd);
         close(user_fd);
     }
-}
-
-void Server::handleMessage(std::string const &msg, int user_fd) {
-    
-    // Handle server's response to message
-    
-    std::cout << YELLOW << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
-    send(user_fd, "Message received", 16, 0); // To check
-    if (msg[0] == '/')
-        handleCommand(msg, user_fd);
-    else
-        handleChannelMessage(msg, user_fd);
 }
 
 extern int stopSignal;

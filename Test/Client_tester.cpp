@@ -37,8 +37,8 @@ void simulateClient(const char *server_ip, int server_port) {
     read(sock, buffer, 1024);
     std::cout << "Client: Server response: " << buffer << std::endl;
 
-    const char* voyage = "A fait un beau voyage";
-    send(sock, voyage, strlen(voyage), 0);
+    const char* command = "/nickname test";
+    send(sock, command, strlen(command), 0);
     std::cout << "Client: message sent" << std::endl;
 
     read(sock, buffer, 1024);

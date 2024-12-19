@@ -6,11 +6,11 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/17 13:24:23 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:00:18 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./Includes/Channel.hpp"
+#include "../Includes/Channel.hpp"
 
 // Constructor
 
