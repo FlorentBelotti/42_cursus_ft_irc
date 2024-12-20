@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/18 18:06:22 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/19 23:40:27 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Channel {
         std::string _channelTopic;
         std::string _channelPassword;
         std::vector<Client*> _channelClients;
+        std::vector<Client*> _channelOperators;
     
     public:
     
@@ -42,12 +43,14 @@ class Channel {
         std::string getChannelTopic() const;
         std::string getChannelPassword() const;
         std::vector<Client*> getChannelClients() const;
+        std::vector<Client*> getChannelOperators() const;
         
     // Setters
     
         void setChannelName(std::string channelName);
         void setChannelTopic(std::string channelTopic);
         void setChannelPassword(std::string channelPassword);
+        void setChannelOperators(Client *client);
         
     // Methods
     

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/18 18:33:45 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 01:00:16 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _s
 // Destructeur
 
 Server::~Server() {
-    std::cout << RED << "SERVER: Shut down." << RESET_COLOR << std::endl;
+    std::cout << RED << "[SERVER]: Shut down." << RESET_COLOR << std::endl;
 }
 
 // Server Loop
@@ -30,7 +30,7 @@ void Server::handleNewClient() {
 
     int newClientFd = accept(getServerFd(), (struct sockaddr *)&newClientAddr, &newClientSize);
     if (newClientFd < 0) {
-        std::cerr << "SERVER: ERROR: Can't accept new client connection!" << std::endl;
+        std::cerr << "[SERVER]: [ERROR]: Can't accept new client connection!" << std::endl;
         std::cerr << strerror(errno) << std::endl;
         return;
     }
@@ -49,13 +49,13 @@ void Server::handleNewClient() {
     getEpollEvent().events = EPOLLIN;
     getEpollEvent().data.fd = newClientFd;
     if (epoll_ctl(getEpollFd(), EPOLL_CTL_ADD, newClientFd, &getEpollEvent()) < 0) {
-        std::cerr << RED << "SERVER: ERROR: Can't add client to epoll!" << RESET_COLOR << std::endl;
+        std::cerr << RED << "[SERVER]: [ERROR]: Can't add client to epoll!" << RESET_COLOR << std::endl;
         std::cerr << RED << strerror(errno) << RESET_COLOR << std::endl;
         close(newClientFd);
         return;
     }
 
-    std::cout << GREEN << "SERVER: New client successfully added!" << RESET_COLOR << std::endl;
+    std::cout << GREEN << "[SERVER]: New client successfully added!" << RESET_COLOR << std::endl;
 
     // Save new client
     
@@ -70,10 +70,7 @@ void Server::handleClientEvent(int user_fd) {
     // Client message
 
     if (bytes_received > 0) {
-        
         handleMessage(buffer, user_fd);
-        // std::cout << YELLOW << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << buffer << std::endl;
-        send(user_fd, "Message received", 16, 0);
     } 
     
     // Client disconnected
@@ -135,7 +132,7 @@ void Server::closeFileDescriptors() {
         setEpollFd(-1);
     }
     setServerStatus(false);
-    std::cerr << YELLOW << "SERVER: Cleanup completed." << RESET_COLOR << std::endl;
+    std::cerr << YELLOW << "[SERVER]: Cleanup completed." << RESET_COLOR << std::endl;
 }
 
 // Setters
@@ -150,6 +147,10 @@ void Server::setServerFd(int serverFd) {
 
 void Server::setEpollFd(int epollFd) {
     _epollFd = epollFd;
+}
+
+void Server::setServerChannel(std::string channelName, Channel *channel) {
+    _channels[channelName] = channel;
 }
 
 // Getters
@@ -180,4 +181,8 @@ struct epoll_event *Server::getEpollEventsArr() {
 
 std::map<int, Client *> &Server::getClients() {
     return (_clients);
+}
+
+std::map<std::string, Channel *> &Server::getServerChannels() {
+    return (_channels);
 }

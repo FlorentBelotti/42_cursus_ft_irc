@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/18 18:00:18 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 00:20:33 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,10 @@ std::vector<Client*> Channel::getChannelClients() const {
     return _channelClients;
 }
 
+std::vector<Client*> Channel::getChannelOperators() const {
+    return _channelOperators;
+}
+
 // Setters
 
 void Channel::setChannelName(std::string channelName) {
@@ -55,6 +59,10 @@ void Channel::setChannelTopic(std::string channelTopic) {
 
 void Channel::setChannelPassword(std::string channelPassword) {
     _channelPassword = channelPassword;
+}
+
+void Channel::setChannelOperators(Client *client) {
+    _channelOperators.push_back(client);
 }
 
 // Methods
@@ -74,7 +82,7 @@ void Channel::removeClient(Client *client) {
 
 void Channel::sendMessageToChannel(std::string message) {
     for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
-        (*it)->sendMessage(message);
+        (*it)->sendMessage(message, RESET_COLOR);
     }
 }
 

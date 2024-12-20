@@ -37,14 +37,50 @@ void simulateClient(const char *server_ip, int server_port) {
     read(sock, buffer, 1024);
     std::cout << "Client: Server response: " << buffer << std::endl;
 
-    const char* command = "/nickname test";
-    send(sock, command, strlen(command), 0);
-    std::cout << "Client: message sent" << std::endl;
-
+    // Send nickname command
+    std::cout << "\n--- TRUE NICKNAME ---" << std::endl;
+    const char* nickTrue = "/nickname test";
+    send(sock, nickTrue, strlen(nickTrue), 0);
     read(sock, buffer, 1024);
-    std::cout << "Client: Server response: " << buffer << std::endl;
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
 
-    //usleep(1000000000);
+    std::cout << "\n--- FALSE NICKNAME ---" << std::endl;
+    const char* nickFalse = "/nickname te**st";
+    send(sock, nickFalse, strlen(nickFalse), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    // Send user command
+    std::cout << "\n--- TRUE USER ---" << std::endl;
+    const char* userTrue = "/user testuser testhost testserver testname";
+    send(sock, userTrue, strlen(userTrue), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    std::cout << "\n--- FALSE USER ---" << std::endl;
+    const char* userFalse = "/user testuser testhost testserver";
+    send(sock, userFalse, strlen(userFalse), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    // Send join command
+    std::cout << "\n--- TRUE JOIN ---" << std::endl;
+    const char* joinTrue = "/join #general";
+    send(sock, joinTrue, strlen(joinTrue), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    std::cout << "\n--- FALSE JOIN ---" << std::endl;
+    const char* joinFalse = "/join #toolongchannelname";
+    send(sock, joinFalse, strlen(joinFalse), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
 
     // close connexion
     close(sock);

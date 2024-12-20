@@ -6,15 +6,18 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/18 18:40:14 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 00:17:41 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "utils.hpp"
 #include "../Includes/Channel.hpp"
+#include "../Includes/Server.hpp"
 
 class Channel;
+
+class Server;
 class Client {
     
     private:
@@ -58,8 +61,10 @@ class Client {
         
         std::string getClientHostname() const;
         std::string getClientNickname() const;
-        std::string getClientUsername() const;
         std::string getClientBuffer() const;
+        std::string getClientUsername() const;
+        std::string getClientRealname() const;
+        std::string getClientServername() const;
         bool        getClientBotStatus() const;
         bool        getClientLogStatus() const;
         bool        getOperatorStatus() const;
@@ -72,8 +77,9 @@ class Client {
         void setClientIp(std::string clientIp);
         void setClientHostname(std::string hostname);
         void setClientNickname(std::string nickname);
-        void setServerName(std::string nickname);
+        void setClientServername(std::string nickname);
         void setClientUsername(std::string username);
+        void setClientRealname(std::string realname);
         void setClientBuffer(std::string buffer);
         void setClientBotStatus(bool status);
         void setClientLogStatus(bool status);
@@ -84,12 +90,15 @@ class Client {
 
     // Command
 
-        bool isValidName(const std::string &name);
-        void clientNickname(const std::string &args);
-    
+        bool isValidName(const std::string &name, size_t max_length);
+        std::vector<std::string> getArgsVector(const std::string &args);
+        void clientNicknameCommand(const std::string &args);
+        void clientUserCommand(const std::string &args);
+        void clientJoinCommand(const std::string &args, Server *server);
+        
     // Methods
 
-        void sendMessage(std::string const &msg);
+        void sendMessage(std::string const &msg, std::string const &color);
         void sendFile(std::string const &file);
         void sendInvite(Client const *client);
 };

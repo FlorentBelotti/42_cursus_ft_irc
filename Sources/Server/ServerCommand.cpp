@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/18 18:22:39 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 01:00:02 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
          
         // Handle server's response
         
-        std::cout << YELLOW << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
+        std::cout << MAGENTA << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
         send(user_fd, "Message received", 16, 0);
         
         // Handle client's buffer
@@ -63,41 +63,43 @@ void Server::processClientCommand(const std::string& command, const std::string&
         commands cmd = defineCommand(command);
         switch (cmd) {
             case NICKNAME:
-                std::cout << "SERVER: Processing /NICKNAME command with args: " << args << std::endl;
-                getClients()[user_fd]->clientNickname(args);
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /NICKNAME command with args: " << args << std::endl;
+                getClients()[user_fd]->clientNicknameCommand(args);
                 break;
             case USER:
-                std::cout << "SERVER: Processing /USER command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /USER command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientUserCommand(args);
                 break;
             case JOIN:
-                std::cout << "SERVER: Processing /JOIN command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /JOIN command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientJoinCommand(args, this);
                 break;
             case PART:
-                std::cout << "SERVER: Processing /PART command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PART command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case PRIVMSG:
-                std::cout << "SERVER: Processing /PRIVMSG command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PRIVMSG command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case NOTICE:
-                std::cout << "SERVER: Processing /NOTICE command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /NOTICE command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case PING:
-                std::cout << "SERVER: Processing /PING command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PING command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case PONG:
-                std::cout << "SERVER: Processing /PONG command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PONG command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case QUIT:
-                std::cout << "SERVER: Processing /QUIT command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /QUIT command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case TOPIC:
-                std::cout << "SERVER: Processing /TOPIC command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /TOPIC command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case INVITE:
-                std::cout << "SERVER: Processing /INVITE command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /INVITE command with args: " << args << RESET_COLOR << std::endl;
                 break;
             case KICK:
-                std::cout << "SERVER: Processing /KICK command with args: " << args << std::endl;
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /KICK command with args: " << args << RESET_COLOR << std::endl;
                 break;
             default:
                 std::string errorMsg = "Unknown command: " + command;

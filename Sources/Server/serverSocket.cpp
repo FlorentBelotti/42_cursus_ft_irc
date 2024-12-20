@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/01 18:47:06 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 18:43:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 00:39:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ bool Server::setSocketNonBlockingMode() {
     
     int sockFlags = fcntl(getServerFd(), F_GETFL, 0);
     if (sockFlags == -1) {
-        std::cerr << RED << "SERVER: ERROR: Cannot get server socket's flag!" << RESET_COLOR << std::endl;
+        std::cerr << RED << "[SERVER]: [ERROR]: Cannot get server socket's flag!" << RESET_COLOR << std::endl;
         std::cerr << strerror(errno) << std::endl;
         return false;
     }
@@ -90,19 +90,19 @@ void Server::manageSocketError(int step) {
     std::string errorMsg;
     switch (step) {
         case CREATE_SOCKET:
-            errorMsg = "SERVER: ERROR: Cannot create the server socket!";
+            errorMsg = "[SERVER]: [ERROR]: Cannot create the server socket!";
             break;
         case SET_NONBLOCKING:
-            errorMsg = "SERVER: ERROR: Cannot set server's socket to non-block!";
+            errorMsg = "[SERVER]: [ERROR]: Cannot set server's socket to non-block!";
             break;
         case BIND_SOCKET:
-            errorMsg = "SERVER: ERROR: Cannot bind the socket!";
+            errorMsg = "[SERVER]: [ERROR]: Cannot bind the socket!";
             break;
         case SET_OPTIONS:
-            errorMsg = "SERVER: ERROR: Cannot set socket options!";
+            errorMsg = "[SERVER]: [ERROR]: Cannot set socket options!";
             break;
         case MANAGE_EPOLL:
-            errorMsg = "SERVER: ERROR: Cannot manage epoll and events!";
+            errorMsg = "[SERVER]: [ERROR]: Cannot manage epoll and events!";
             break;
     }
     std::cerr << RED << errorMsg << RESET_COLOR << std::endl;
@@ -138,5 +138,5 @@ void Server::setupSocketAndEvents() {
         }
     }
     setServerStatus(true);
-    std::cout << GREEN << "SERVER: Successfully created!" << RESET_COLOR << std::endl;
+    std::cout << GREEN << "[SERVER]: Successfully created!" << RESET_COLOR << std::endl;
 }

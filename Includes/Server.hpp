@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/18 18:23:07 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 00:02:10 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@
 #include "utils.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
+
+class Client;
+
+class Channel;
 class Server {
     
     private:
@@ -121,15 +125,17 @@ class Server {
         void    setServerFd(int serverFd);
         void    setServerStatus(bool status);
         void    setEpollFd(int epollFd);
+        void    setServerChannel(std::string channelName, Channel *channel);
 
     // Getters
-        int                     getServerFd() const;
-        int                     getEpollFd() const ;
-        int                     getServerPort() const ;
-        bool                    getServerStatus() const ;
-        struct epoll_event      &getEpollEvent() ;
-        struct epoll_event      *getEpollEventsArr() ;
-        std::map<int, Client *> &getClients() ;
+        int                                 getServerFd() const;
+        int                                 getEpollFd() const;
+        int                                 getServerPort() const;
+        bool                                getServerStatus() const;
+        struct epoll_event                  &getEpollEvent();
+        struct epoll_event                  *getEpollEventsArr();
+        std::map<int, Client *>             &getClients();
+        std::map<std::string, Channel *>    &getServerChannels();
 
     // Animation
         static void    *serverIsRunningAnimation(void *);
