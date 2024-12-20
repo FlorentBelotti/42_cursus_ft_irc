@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 02:41:48 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 03:01:57 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,6 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     // Check command arguments
     
     std::vector<std::string> arguments = getArgsVector(args);
-
     
     if (arguments.size() < 2) {
         std::string errorMsg = "Error: PRIVMSG command requires a channel and a message.";
@@ -201,4 +200,32 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     
     std::string fullMessage = "[" + getClientNickname() + "]: " + message;
     channel->sendMessageToChannel(fullMessage, this);
+}
+
+void Client::clientQuitCommand(const std::string &args, Server *server) {
+    
+    sendMessage(args, RESET_COLOR);
+    
+    // close file_descriptor
+    
+    close(getClientFd());
+
+    // Delete client from epoll
+    
+    epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
+
+    // Delete client from channel(s)
+    std::map<std::string, Channel*> &channels = server->getServerChannels();
+    for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        Channel *channel = it->second;
+        channel->removeClient(this);
+        channel->removeOperator(this, server);
+    }
+
+    // Delete client from server
+    server->getClients().erase(getClientFd());
+    delete this;
+
+    std::string successMsg = "[COMMAND]: Client disconnected.";
+    std::cout << successMsg << std::endl;
 }

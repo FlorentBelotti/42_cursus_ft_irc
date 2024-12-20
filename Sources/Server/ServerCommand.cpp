@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 02:23:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 03:00:37 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,6 @@ Server::commands Server::defineCommand(const std::string &command) {
     if (command == "join") return JOIN;
     if (command == "part") return PART;
     if (command == "privmsg") return PRIVMSG;
-    if (command == "notice") return NOTICE;
-    if (command == "ping") return PING;
-    if (command == "pong") return PONG;
     if (command == "quit") return QUIT;
     if (command == "topic") return TOPIC;
     if (command == "invite") return INVITE;
@@ -82,17 +79,9 @@ void Server::processClientCommand(const std::string& command, const std::string&
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PRIVMSG command with args: " << args << RESET_COLOR << std::endl;
                 getClients()[user_fd]->clientPrivmsgCommand(args, this);
                 break;
-            case NOTICE:
-                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /NOTICE command with args: " << args << RESET_COLOR << std::endl;
-                break;
-            case PING:
-                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PING command with args: " << args << RESET_COLOR << std::endl;
-                break;
-            case PONG:
-                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PONG command with args: " << args << RESET_COLOR << std::endl;
-                break;
             case QUIT:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /QUIT command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientQuitCommand(args, this);
                 break;
             case TOPIC:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /TOPIC command with args: " << args << RESET_COLOR << std::endl;

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 02:17:12 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 02:52:56 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ class Client {
         void                        clientJoinCommand(const std::string &args, Server *server);
         void                        clientPartCommand(const std::string &args, Server *server);
         void                        clientPrivmsgCommand(const std::string &args, Server *server);
+        void                        clientQuitCommand(const std::string &args, Server *server);
 
     // Methods
 

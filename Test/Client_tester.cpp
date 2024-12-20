@@ -110,9 +110,16 @@ void simulateClient(const char *server_ip, int server_port) {
     std::cout << "Server response: " << buffer << std::endl;
     memset(buffer, 0, sizeof(buffer));
 
+    std::cout << "\n--- QUIT ---" << std::endl;
+    const char* quitmsg = "/quit Ciao!";
+    send(sock, quitmsg, strlen(quitmsg), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
     // close connexion
     close(sock);
-    std::cout << "Client: Disconnected" << std::endl;
+    // std::cout << "Client: Disconnected" << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 01:42:52 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 02:49:05 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,13 +98,11 @@ class Server {
             JOIN, // Join a channel : JOIN <#channel>
             PART, // Leave a channel : PART <#channel>
             PRIVMSG, // Send a message : PRIVMSG <#channel> :<message>
-            NOTICE, // Send a notice : NOTICE <#channel> :<message>
-            PING, // Ping the server : PING <server>
-            PONG, // Pong the server : PONG <server>
             QUIT, // Quit the server : QUIT <message>
             TOPIC, // Set the topic : TOPIC <#channel> :<topic>
             INVITE, // Invite a user : INVITE <nickname> <#channel>
             KICK, // Kick a user : KICK <#channel> <nickname> :<reason>
+            OPERATOR, // Set operator status : OPERATOR <#channel> <nickname>
             HELP // Help command
         };
     
