@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 02:49:05 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 20:58:36 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,7 @@ class Server {
         struct epoll_event                  *getEpollEventsArr();
         std::map<int, Client *>             &getClients();
         std::map<std::string, Channel *>    &getServerChannels();
+        Client                              *getClientByNickname(std::string const &nickname);
 
     // Channel
 

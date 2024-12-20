@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:35:59 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/15 22:11:49 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 20:25:10 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ static void manageSignal(int signal)
 {
 	if (signal == SIGINT) {
         stopSignal = 1;
-        std::cout << BLUE << "SIGNAL: received SIGINT signal" << std::endl;
+        std::cout << BLUE << "[SIGNAL]: received SIGINT signal" << std::endl;
         
     }
     else if (signal == SIGQUIT) {
 		stopSignal = 1;
-        std::cout << BLUE << "SIGNAL: received SIGQUIT signal" << std::endl;
+        std::cout << BLUE << "[SIGNAL]: received SIGQUIT signal" << std::endl;
     }
 }
 
@@ -46,6 +46,7 @@ int main(int ac, char **av) {
         signal(SIGQUIT, manageSignal);
         server.serverLoop();
     }
+    
     return 0;
 }
     

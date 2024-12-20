@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 03:00:37 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 21:05:23 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,12 +85,15 @@ void Server::processClientCommand(const std::string& command, const std::string&
                 break;
             case TOPIC:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /TOPIC command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientTopicCommand(args, this);
                 break;
             case INVITE:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /INVITE command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientInviteCommand(args, this);
                 break;
             case KICK:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /KICK command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientKickCommand(args, this);
                 break;
             default:
                 std::string errorMsg = "Unknown command: " + command;

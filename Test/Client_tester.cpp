@@ -28,16 +28,20 @@ void simulateClient(const char *server_ip, int server_port) {
         return;
     }
 
-    // Send message to server
+    std::cout << "\n--- SEND MSG ---" << std::endl;
     const char* ulysse = "Heureux qui comme Ulysse";
     send(sock, ulysse, strlen(ulysse), 0);
     std::cout << "Client: message sent" << std::endl;
-
-    // Read server response
     read(sock, buffer, 1024);
     std::cout << "Client: Server response: " << buffer << std::endl;
 
-    // Send nickname command
+    std::cout << "\n--- FALSE COMMAND ---" << std::endl;
+    const char* falseCmd = "/cmd test";
+    send(sock, falseCmd, strlen(falseCmd), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
     std::cout << "\n--- TRUE NICKNAME ---" << std::endl;
     const char* nickTrue = "/nickname test";
     send(sock, nickTrue, strlen(nickTrue), 0);
@@ -52,7 +56,6 @@ void simulateClient(const char *server_ip, int server_port) {
     std::cout << "Server response: " << buffer << std::endl;
     memset(buffer, 0, sizeof(buffer));
 
-    // Send user command
     std::cout << "\n--- TRUE USER ---" << std::endl;
     const char* userTrue = "/user testuser testhost testserver testname";
     send(sock, userTrue, strlen(userTrue), 0);
@@ -67,7 +70,6 @@ void simulateClient(const char *server_ip, int server_port) {
     std::cout << "Server response: " << buffer << std::endl;
     memset(buffer, 0, sizeof(buffer));
 
-    // Send join command
     std::cout << "\n--- TRUE JOIN ---" << std::endl;
     const char* joinTrue = "/join #general";
     send(sock, joinTrue, strlen(joinTrue), 0);
@@ -78,6 +80,13 @@ void simulateClient(const char *server_ip, int server_port) {
     std::cout << "\n--- FALSE JOIN ---" << std::endl;
     const char* joinFalse = "/join #toolongchannelname";
     send(sock, joinFalse, strlen(joinFalse), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    std::cout << "\n--- TRUE TOPIC ---" << std::endl;
+    const char* trueTopic = "/topic #general general";
+    send(sock, trueTopic, strlen(trueTopic), 0);
     read(sock, buffer, 1024);
     std::cout << "Server response: " << buffer << std::endl;
     memset(buffer, 0, sizeof(buffer));
