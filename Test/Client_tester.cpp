@@ -82,6 +82,34 @@ void simulateClient(const char *server_ip, int server_port) {
     std::cout << "Server response: " << buffer << std::endl;
     memset(buffer, 0, sizeof(buffer));
 
+    std::cout << "\n--- TRUE PRVMSG ---" << std::endl;
+    const char* prvmsgTrue = "/privmsg #general Ceci est un test";
+    send(sock, prvmsgTrue, strlen(prvmsgTrue), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    std::cout << "\n--- FALSE PRVMSG ---" << std::endl;
+    const char* prvmsgFalse = "/privmsg #test Ceci est un test";
+    send(sock, prvmsgFalse, strlen(prvmsgFalse), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    std::cout << "\n--- FALSE PART ---" << std::endl;
+    const char* partfalse = "/part #falsechannelname";
+    send(sock, partfalse, strlen(partfalse), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
+    std::cout << "\n--- TRUE PART ---" << std::endl;
+    const char* truepart = "/part #general";
+    send(sock, truepart, strlen(truepart), 0);
+    read(sock, buffer, 1024);
+    std::cout << "Server response: " << buffer << std::endl;
+    memset(buffer, 0, sizeof(buffer));
+
     // close connexion
     close(sock);
     std::cout << "Client: Disconnected" << std::endl;

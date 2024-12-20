@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 00:02:10 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 01:42:52 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,6 @@ class Server {
         void    setServerFd(int serverFd);
         void    setServerStatus(bool status);
         void    setEpollFd(int epollFd);
-        void    setServerChannel(std::string channelName, Channel *channel);
 
     // Getters
         int                                 getServerFd() const;
@@ -137,6 +136,11 @@ class Server {
         std::map<int, Client *>             &getClients();
         std::map<std::string, Channel *>    &getServerChannels();
 
+    // Channel
+
+        void    addServerChannel(std::string channelName, Channel *channel);
+        void    removeServerChannel(std::string channelName);
+    
     // Animation
         static void    *serverIsRunningAnimation(void *);
 

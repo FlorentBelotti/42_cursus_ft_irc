@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 00:20:33 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 02:37:38 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,19 @@ void Channel::setChannelPassword(std::string channelPassword) {
     _channelPassword = channelPassword;
 }
 
-void Channel::setChannelOperators(Client *client) {
+void Channel::addChannelOperators(Client *client) {
     _channelOperators.push_back(client);
+}
+
+void Channel::removeOperator(Client *client, Server *server) {
+    std::vector<Client*>::iterator it = std::find(_channelOperators.begin(), _channelOperators.end(), client);
+    if (it != _channelOperators.end()) {
+        _channelOperators.erase(it);
+    }
+    (void)server;
+    if (_channelOperators.empty()) {
+        server->removeServerChannel(getChannelName());
+    }
 }
 
 // Methods
@@ -80,9 +91,13 @@ void Channel::removeClient(Client *client) {
     }
 }
 
-void Channel::sendMessageToChannel(std::string message) {
-    for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
-        (*it)->sendMessage(message, RESET_COLOR);
+void Channel::sendMessageToChannel(std::string message, Client *sender) {
+    for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it) {
+        if (*it != sender) {
+            (*it)->sendMessage(message, RESET_COLOR);
+        } else { // TESTER
+            (*it)->sendMessage(message, CYAN);
+        }
     }
 }
 

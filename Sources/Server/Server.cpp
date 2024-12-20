@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 01:00:16 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 01:43:54 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,8 +149,15 @@ void Server::setEpollFd(int epollFd) {
     _epollFd = epollFd;
 }
 
-void Server::setServerChannel(std::string channelName, Channel *channel) {
+// Channel
+
+void Server::addServerChannel(std::string channelName, Channel *channel) {
     _channels[channelName] = channel;
+}
+
+void Server::removeServerChannel(std::string channelName) {
+    delete _channels[channelName];
+    _channels.erase(channelName);
 }
 
 // Getters

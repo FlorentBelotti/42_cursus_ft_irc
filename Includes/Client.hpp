@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 00:17:41 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 02:17:12 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,17 +85,19 @@ class Client {
         void setClientLogStatus(bool status);
         void setClientPswdTries(int tries);
         void setClientOperatorStatus(bool status);
-        void setClientChannel(std::string channelName, Channel *channel);
+        void addClientChannel(std::string channelName, Channel *channel);
         void removeClientChannel(std::string channelName);
 
     // Command
 
-        bool isValidName(const std::string &name, size_t max_length);
-        std::vector<std::string> getArgsVector(const std::string &args);
-        void clientNicknameCommand(const std::string &args);
-        void clientUserCommand(const std::string &args);
-        void clientJoinCommand(const std::string &args, Server *server);
-        
+        bool                        isValidName(const std::string &name, size_t max_length);
+        std::vector<std::string>    getArgsVector(const std::string &args);
+        void                        clientNicknameCommand(const std::string &args);
+        void                        clientUserCommand(const std::string &args);
+        void                        clientJoinCommand(const std::string &args, Server *server);
+        void                        clientPartCommand(const std::string &args, Server *server);
+        void                        clientPrivmsgCommand(const std::string &args, Server *server);
+
     // Methods
 
         void sendMessage(std::string const &msg, std::string const &color);

@@ -6,15 +6,18 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/19 23:40:27 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 02:19:31 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "utils.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
 
 class Client;
+
+class Server;
 class Channel {
     
     private:
@@ -50,13 +53,14 @@ class Channel {
         void setChannelName(std::string channelName);
         void setChannelTopic(std::string channelTopic);
         void setChannelPassword(std::string channelPassword);
-        void setChannelOperators(Client *client);
+        void addChannelOperators(Client *client);
+        void removeOperator(Client *client, Server *server);
         
     // Methods
     
         void addClient(Client *client);
         void removeClient(Client *client);
-        void sendMessageToChannel(std::string message);
-        void sendFileToChannel(std::string message, Client *client);
+        void sendMessageToChannel(std::string message, Client *sender);
+        void sendFileToChannel(std::string message, Client *sender);
         void sendInviteToChannel(Client *client);
 };

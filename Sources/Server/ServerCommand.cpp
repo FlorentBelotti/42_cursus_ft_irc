@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 01:00:02 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/20 02:23:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,11 @@ void Server::processClientCommand(const std::string& command, const std::string&
                 break;
             case PART:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PART command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientPartCommand(args, this);
                 break;
             case PRIVMSG:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PRIVMSG command with args: " << args << RESET_COLOR << std::endl;
+                getClients()[user_fd]->clientPrivmsgCommand(args, this);
                 break;
             case NOTICE:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /NOTICE command with args: " << args << RESET_COLOR << std::endl;
