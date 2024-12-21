@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 20:58:36 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 01:47:50 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,10 @@ class Server {
         
         enum commands {
             NICKNAME, // Define user pseudo
+            CAP, // Define user capabilities
+            MODE,
+            WHO,
+            PASS, // Define user password
             USER, // Define user infos : USER <username> <hostname> <servername> <realname>
             JOIN, // Join a channel : JOIN <#channel>
             PART, // Leave a channel : PART <#channel>
@@ -106,9 +110,10 @@ class Server {
             HELP // Help command
         };
     
-        void                handleMessage(std::string const &msg, int user_fd);
-        void                processClientCommand(const std::string &command, const std::string &args, int user_fd);
-        Server::commands    defineCommand(const std::string &command);
+        void                        handleMessage(std::string const &msg, int user_fd);
+        void                        processClientCommand(const std::string &command, const std::string &args, int user_fd);
+        Server::commands            defineCommand(const std::string &command);
+        std::vector<std::string>    splitCommands(const std::string& message);
    
    // Server's cleaners
 

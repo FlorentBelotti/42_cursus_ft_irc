@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 20:58:44 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 00:56:06 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,19 @@ void Server::handleNewClient() {
     getClients()[newClientFd] = new Client(newClientFd, std::string(host));
 }
 
+std::vector<std::string> Server::splitCommands(const std::string& message) {
+    std::vector<std::string> commands;
+    std::istringstream stream(message);
+    std::string command;
+    while (std::getline(stream, command, '\n')) {
+        if (!command.empty() && command[command.size() - 1] == '\r') {
+            command.erase(command.size() - 1); // Remove the trailing '\r'
+        }
+        commands.push_back(command);
+    }
+    return commands;
+}
+
 void Server::handleClientEvent(int user_fd) {
     
     char buffer[1024] = {0};
@@ -70,7 +83,11 @@ void Server::handleClientEvent(int user_fd) {
     // Client message
 
     if (bytes_received > 0) {
-        handleMessage(buffer, user_fd);
+        std::string message(buffer, bytes_received);
+        std::vector<std::string> commands = splitCommands(message);
+        for (size_t i = 0; i < commands.size(); ++i) {
+            handleMessage(commands[i], user_fd);
+        }
     } 
     
     // Client disconnected

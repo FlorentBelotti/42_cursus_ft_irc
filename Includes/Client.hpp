@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 21:05:40 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 00:09:57 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Client {
     
         int         _clientFd;
         std::string _clientIp;
+        std::string _password;
 
     // Client's informations
 
@@ -70,6 +71,7 @@ class Client {
         bool        getOperatorStatus() const;
         int         getClientFd() const;
         int         getClientPswdTries() const;
+        Channel     *getClientChannel();
         
     // Setters
     
@@ -87,6 +89,7 @@ class Client {
         void setClientOperatorStatus(bool status);
         void addClientChannel(std::string channelName, Channel *channel);
         void removeClientChannel(std::string channelName);
+        void setClientPassword(std::string password);
 
     // Command
 
@@ -101,10 +104,11 @@ class Client {
         void                        clientTopicCommand(const std::string &args, Server *server);
         void                        clientInviteCommand(const std::string &args, Server *server);
         void                        clientKickCommand(const std::string &args, Server *server);
+        void                        clientPassCommand(const std::string &args);
         
     // Methods
 
-        void sendMessage(std::string const &msg, std::string const &color);
+        void sendMessage(std::string const &msg);
         void sendFile(std::string const &file);
         void sendInvite(Client const *client);
 };

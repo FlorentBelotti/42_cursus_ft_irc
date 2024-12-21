@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 02:37:38 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 01:29:27 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,10 @@ void Channel::removeClient(Client *client) {
 }
 
 void Channel::sendMessageToChannel(std::string message, Client *sender) {
-    for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it) {
-        if (*it != sender) {
-            (*it)->sendMessage(message, RESET_COLOR);
-        } else { // TESTER
-            (*it)->sendMessage(message, CYAN);
-        }
+    (void)sender;
+    for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
+            std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << "Sending message to " << (*it)->getClientNickname() << std::endl;
+            (*it)->sendMessage(message);
     }
 }
 

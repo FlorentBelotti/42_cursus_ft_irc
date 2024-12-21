@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 21:06:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 01:25:40 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,23 +38,38 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
 
 // Commands
 
+void Client::clientPassCommand(const std::string &args) {
+    
+    // Check args
+    
+    if (args.empty() || args.find(' ') != std::string::npos) {
+        std::string errorMsg = "[USAGE]: /pass <password>";
+        sendMessage(errorMsg);
+        return;
+    }
+    
+    setClientPassword(args);
+    std::cout << GREEN << "[COMMAND]: Password set." << RESET_COLOR << std::endl;
+}
+
 void Client::clientNicknameCommand(const std::string &args) {
     
     if (args.empty() || args.find(' ') != std::string::npos) {
         std::string errorMsg = "[USAGE]: /nickname <nickname>";
-        sendMessage(errorMsg, RED);
+        std::cout << "not valid" << std::endl;
+        sendMessage(errorMsg);
         return;
     }
 
     if (!isValidName(args, 9)) {
         std::string errorMsg = "[USAGE]: Nickname must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
+        std::cout << "not valid" << std::endl;
         return;
     }
 
     setClientNickname(args);
-    std::string successMsg = "[COMMAND]: Nickname changed to " + getClientNickname();
-    sendMessage(successMsg, GREEN);
+    std::cout << GREEN << "[COMMAND]: Nickname changed to " + getClientNickname() << RESET_COLOR << std::endl;
 }
 
 void Client::clientUserCommand(const std::string &args) {
@@ -63,17 +78,17 @@ void Client::clientUserCommand(const std::string &args) {
     
     if (argsVector.size() != 4) {
         std::string errorMsg = "[USAGE]: /username <username> <hostname> <servername> <realname>";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
-    for (size_t i = 0; i < argsVector.size(); ++i) {
-        if (!isValidName(argsVector[i], 16)) {
-            std::string errorMsg = "[USAGE]: Each argument must be 16 characters max and contain only letters, digits, '_', and '-'.";
-            sendMessage(errorMsg, RED);
-            return;
-        }
-    }
+    // for (size_t i = 0; i < argsVector.size(); ++i) {
+    //     if (!isValidName(argsVector[i], 16)) {
+    //         std::string errorMsg = "[USAGE]: Each argument must be 16 characters max and contain only letters, digits, '_', and '-'.";
+    //         sendMessage(errorMsg);
+    //         return;
+    //     }
+    // }
 
     setClientUsername(argsVector[0]);
     setClientHostname(argsVector[1]);
@@ -84,7 +99,7 @@ void Client::clientUserCommand(const std::string &args) {
     successMsg += "Hostname: " + getClientHostname() + "\n";
     successMsg += "Servername: " + getClientServername() + "\n";
     successMsg += "Realname: " + getClientRealname() + "\n";
-    sendMessage(successMsg, GREEN);
+    std::cout << GREEN << successMsg << RESET_COLOR << std::endl;
 }
 
 void Client::clientJoinCommand(const std::string &args, Server *server) {
@@ -98,43 +113,40 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         addClientChannel(args, server->getServerChannels()[args]);
         server->getServerChannels()[args]->addClient(this);
         std::string successMsg = "[COMMAND]: Channel " + args + " joined.";
-        sendMessage(successMsg, GREEN);
-    } 
-    
-    
-    else {
-    
+        sendMessage(successMsg);
+        //server->getServerChannels()[args]->sendMessageToChannel("[" + getClientNickname() + "] has joined the channel.", this);
+    } else {
+        
         // Check if channel name is valid
         
         if (args[0] != '#' && args[0] != '&') {
             std::string errorMsg = "[USAGE]: Channel name must start with a '#' or '&' character.";
-            sendMessage(errorMsg, RED);
+            sendMessage(errorMsg);
             return;
         }
+        
         if (!isValidName(&args[1], 9)) {
             std::string errorMsg = "[USAGE]: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
-            sendMessage(errorMsg, RED);
+            sendMessage(errorMsg);
             return;
         }
 
-        // Create channel
-        
         server->addServerChannel(args, new Channel(args));
         
-        // Add channel to client
-        
-        addClientChannel(args, server->getServerChannels()[args]);
+        Channel* channel = server->getServerChannels()[args];
+    
+        // Ajouter le canal au client
+        addClientChannel(args, channel);
 
-        // Add client to channel
-        
-        server->getServerChannels()[args]->addClient(this);
+        // Ajouter le client au canal
+        channel->addClient(this);
 
-        // Add client to channel's operators
-
-        server->getServerChannels()[args]->addChannelOperators(this);
-
-        std::string successMsg = "[COMMAND]: Channel " + args + " created.";
-        sendMessage(successMsg, GREEN);
+        // Ajouter le client aux opérateurs du canal
+        channel->addChannelOperators(this);
+    
+        // Envoyer les messages de réponse IRC
+        std::string joinMsg = ":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n";
+        channel->sendMessageToChannel(joinMsg, this);
     }
 }
 
@@ -147,7 +159,7 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
         // Client join channel
         
         std::string successMsg = "[COMMAND]: Channel doesn't exist.";
-        sendMessage(successMsg, GREEN);
+        sendMessage(successMsg);
         return;
     }
     
@@ -166,7 +178,7 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
         server->getServerChannels()[args]->removeOperator(this, server);
 
         std::string successMsg = "[COMMAND]: Channel " + args + " exited.";
-        sendMessage(successMsg, GREEN);
+        sendMessage(successMsg);
     }
 }
 
@@ -178,7 +190,7 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     
     if (arguments.size() < 2) {
         std::string errorMsg = "[USAGE]: PRIVMSG command requires a channel and a message.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -190,7 +202,7 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
         std::string errorMsg = "[USAGE]: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -204,7 +216,7 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
 
 void Client::clientQuitCommand(const std::string &args, Server *server) {
     
-    sendMessage(args, RESET_COLOR);
+    sendMessage(args);
     
     // close file_descriptor
     
@@ -240,7 +252,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
 
     if (arguments.size() < 2) {
         std::string errorMsg = "[USAGE]: /topic <channel> <topic>";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -252,7 +264,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
         std::string errorMsg = "Error: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -260,7 +272,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
 
     if (topic.length() > 255) {
         std::string errorMsg = "Error: Topic must be 255 characters max.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -270,7 +282,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
         std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -278,7 +290,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     channel->setChannelTopic(topic);
     std::string successMsg = "[COMMAND]: Topic set to " + topic;
-    sendMessage(successMsg, GREEN);
+    sendMessage(successMsg);
 }
 
 void Client::clientInviteCommand(const std::string &args, Server *server) {
@@ -289,7 +301,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     
     if (arguments.size() != 2) {
         std::string errorMsg = "[USAGE]: /invite <nickname> <channel>";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -301,7 +313,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
         std::string errorMsg = "Error: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -311,7 +323,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     
     if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
         std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -320,17 +332,17 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     Client* invitedClient = server->getClientByNickname(nickname);
     if (!invitedClient) {
         std::string errorMsg = "Error: Client " + nickname + " does not exist.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
     // Send invite
     
     std::string inviteMsg = "You have been invited to join channel " + channelName + " by " + getClientNickname() + ".";
-    invitedClient->sendMessage(inviteMsg, GREEN);
+    invitedClient->sendMessage(inviteMsg);
 
     std::string successMsg = "Client " + nickname + " has been invited to channel " + channelName + ".";
-    sendMessage(successMsg, GREEN);
+    sendMessage(successMsg);
 }
 
 void Client::clientKickCommand(const std::string &args, Server *server) {
@@ -341,7 +353,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     
     if (arguments.size() < 2) {
         std::string errorMsg = "[USAGE]: /kick <nickname> <channel> <reason>";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -354,7 +366,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
         std::string errorMsg = "Error: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -364,7 +376,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     
     if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
         std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
@@ -373,18 +385,18 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     Client* kickedClient = server->getClientByNickname(nickname);
     if (!kickedClient) {
         std::string errorMsg = "Error: Client " + nickname + " does not exist.";
-        sendMessage(errorMsg, RED);
+        sendMessage(errorMsg);
         return;
     }
 
     // Kick client
     
     std::string kickMsg = "You have been kicked from channel " + channelName + " by " + getClientNickname() + " for " + reason + ".";
-    kickedClient->sendMessage(kickMsg, RED);
+    kickedClient->sendMessage(kickMsg);
 
     channel->removeClient(kickedClient);
     kickedClient->removeClientChannel(channelName);
 
     std::string successMsg = "Client " + nickname + " has been kicked from channel " + channelName + ".";
-    sendMessage(successMsg, GREEN);
+    sendMessage(successMsg);
 }

@@ -6,22 +6,39 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 21:05:23 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 01:48:10 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Server.hpp"
 
+bool isCommand(const std::string &cmd) {
+    if (cmd == "NICK" || cmd == "USER" || cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" || cmd == "QUIT" || cmd == "TOPIC" || cmd == "INVITE" || cmd == "KICK" || cmd == "HELP" || cmd == "PASS" || cmd == "CAP" || cmd == "MODE" || cmd == "WHO")
+        return true;
+    else
+        return false;
+}
+
 void Server::handleMessage(std::string const &msg, int user_fd) {
 
     // Check if the message is a command
 
-    if (!msg.empty() && msg[0] == '/') {
+    if (msg.empty()) {
+        send(user_fd, "Empty message", 13, 0);
+        return;
+    }
+    
+    size_t  spacePos = msg.find(' ');
+    std::string command = msg.substr(0, spacePos);
+    
+    std::cout << MAGENTA << "[Hexchat]: " << RESET_COLOR << msg << std::endl;
+
+    if (isCommand(command)) {
         
+        std::cout << "is command" << std::endl;
+
         // Extract command and its arguments
-        
-        size_t  spacePos = msg.find(' ');
-        std::string command = msg.substr(1, spacePos - 1);
+
         std::string args = (spacePos != std::string::npos) ? msg.substr(spacePos + 1) : "";
         
         // Process command
@@ -29,11 +46,15 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
         processClientCommand(command, args, user_fd);
 
     } else {
-         
+        
+        std::cout << "is msg" << std::endl;
+
         // Handle server's response
         
-        std::cout << MAGENTA << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
-        send(user_fd, "Message received", 16, 0);
+        // std::cout << MAGENTA << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
+        // send(user_fd, "Message received", 16, 0);
+        
+        getClients()[user_fd]->getClientChannel()->sendMessageToChannel(msg, getClients()[user_fd]);
         
         // Handle client's buffer
         
@@ -42,16 +63,20 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
 }
 
 Server::commands Server::defineCommand(const std::string &command) {
-    if (command == "nickname") return NICKNAME;
-    if (command == "user") return USER;
-    if (command == "join") return JOIN;
-    if (command == "part") return PART;
-    if (command == "privmsg") return PRIVMSG;
-    if (command == "quit") return QUIT;
-    if (command == "topic") return TOPIC;
-    if (command == "invite") return INVITE;
-    if (command == "kick") return KICK;
-    if (command == "help") return HELP;
+    if (command == "NICK") return NICKNAME;
+    if (command == "USER") return USER;
+    if (command == "JOIN") return JOIN;
+    if (command == "PART") return PART;
+    if (command == "PRIVMSG") return PRIVMSG;
+    if (command == "QUIT") return QUIT;
+    if (command == "TOPIC") return TOPIC;
+    if (command == "INVITE") return INVITE;
+    if (command == "KICK") return KICK;
+    if (command == "HELP") return HELP;
+    if (command == "PASS") return PASS;
+    if (command == "CAP") return CAP;
+    if (command == "MODE") return MODE;
+    if (command == "WHO") return WHO;
     throw std::invalid_argument("Unknown command, try </help>");
 }
 
@@ -62,6 +87,16 @@ void Server::processClientCommand(const std::string& command, const std::string&
             case NICKNAME:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /NICKNAME command with args: " << args << std::endl;
                 getClients()[user_fd]->clientNicknameCommand(args);
+                break;
+            case MODE:
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /MODE command with args: " << args << std::endl;
+                break;
+            case WHO:
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /WHO command with args: " << args << std::endl;
+                break;
+            case PASS:
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PASS command with args: " << args << std::endl;
+                getClients()[user_fd]->clientPassCommand(args);
                 break;
             case USER:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /USER command with args: " << args << RESET_COLOR << std::endl;
@@ -94,6 +129,9 @@ void Server::processClientCommand(const std::string& command, const std::string&
             case KICK:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /KICK command with args: " << args << RESET_COLOR << std::endl;
                 getClients()[user_fd]->clientKickCommand(args, this);
+                break;
+            case CAP:
+                std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /CAP command with args: " << args << RESET_COLOR << std::endl;
                 break;
             default:
                 std::string errorMsg = "Unknown command: " + command;

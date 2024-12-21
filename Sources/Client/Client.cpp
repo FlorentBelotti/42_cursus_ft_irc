@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/15 17:21:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 02:23:21 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 00:46:26 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,10 @@ std::string Client::getClientServername() const {
 std::string Client::getClientRealname() const {
     return _realname;
 }
+
+Channel *Client::getClientChannel() {
+    return _clientChannels[0];
+}
         
 // Setters
     
@@ -104,6 +108,10 @@ void Client::setClientPswdTries(int tries) {
     _pswdTries = tries;
 }
 
+void Client::setClientPassword(std::string password) {
+    _password = password;
+}
+
 void Client::setClientOperatorStatus(bool status) {
     _isOperator = status;
 }
@@ -126,10 +134,8 @@ void Client::setClientRealname(std::string realname) {
 
 // Methods
 
-void Client::sendMessage(std::string const &msg, std::string const &color) {
-    //std::cout << color << msg << RESET_COLOR << std::endl;
-    (void)color;
-    send(getClientFd(), msg.c_str(), msg.length(), 0);
+void Client::sendMessage(std::string const &msg) {
+    send(getClientFd(), msg.c_str(), msg.size(), 0);
 }
 
 void Client::sendFile(std::string const &file) {
