@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 17:14:28 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 19:46:03 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
     return argsVector;
 }
 
-void Client::sendRequest(const std::string &nickname, const std::string &cmd, Channel *channel) {
-    std::string request = ":" + nickname + " " + cmd + " " + channel->getChannelName() + "\r\n";
+void Client::sendRequest(const std::string &nickname, const std::string &cmd, Channel *channel, const std::string &other) {
+    std::string request = ":" + nickname + " " + cmd + " " + channel->getChannelName() + other + "\r\n";
     channel->sendMessageToChannel(request, this);
 }
 
@@ -87,23 +87,15 @@ void Client::clientUserCommand(const std::string &args) {
         return;
     }
 
-    // for (size_t i = 0; i < argsVector.size(); ++i) {
-    //     if (!isValidName(argsVector[i], 16)) {
-    //         std::string errorMsg = "[USAGE]: Each argument must be 16 characters max and contain only letters, digits, '_', and '-'.";
-    //         sendMessage(errorMsg);
-    //         return;
-    //     }
-    // }
-
     setClientUsername(argsVector[0]);
     setClientHostname(argsVector[1]);
     setClientServername(argsVector[2]);
     setClientRealname(argsVector[3]);
     std::string successMsg = "[COMMAND]: Client infos updated\n";
-    successMsg += "Username: " + getClientUsername() + "\n";
-    successMsg += "Hostname: " + getClientHostname() + "\n";
-    successMsg += "Servername: " + getClientServername() + "\n";
-    successMsg += "Realname: " + getClientRealname() + "\n";
+    // successMsg += "Username: " + getClientUsername() + "\n";
+    // successMsg += "Hostname: " + getClientHostname() + "\n";
+    // successMsg += "Servername: " + getClientServername() + "\n";
+    // successMsg += "Realname: " + getClientRealname() + "\n";
     std::cout << GREEN << successMsg << RESET_COLOR << std::endl;
 }
 
@@ -117,7 +109,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         
         addClientChannel(args, server->getServerChannels()[args]);
         server->getServerChannels()[args]->addClient(this);
-        sendRequest(getClientNickname(), "JOIN", server->getServerChannels()[args]);
+        sendRequest(getClientNickname(), "JOIN", server->getServerChannels()[args], "");
     } 
     
     // Create Channel if it doesn't exist
@@ -142,7 +134,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         addClientChannel(args, channel);
         channel->addClient(this);
         channel->addChannelOperators(this);
-        sendRequest(getClientNickname(), "JOIN", channel);
+        sendRequest(getClientNickname(), "JOIN", channel, "");
     }
 }
 
@@ -150,8 +142,6 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
 
     // Check if channel exists
     
-    std::cout << RED << "[DEBUG]: Step 1" << RESET_COLOR << std::endl;
-
     size_t spacePos = args.find(' ');
     if (spacePos == std::string::npos) {
         std::string errorMsg = "[USAGE]: /part <#channel>";
@@ -170,10 +160,10 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
         return;
     }
     
-    sendRequest(getClientNickname(), "PART", server->getServerChannels()[channelName]);
+    sendRequest(getClientNickname(), "PART", server->getServerChannels()[channelName], "");
     server->getServerChannels()[channelName]->removeClient(this);
     removeClientChannel(channelName);
-    server->getServerChannels()[channelName]->removeOperator(this, server);
+    server->getServerChannels()[channelName]->removeOperator(this);
 }
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
@@ -210,32 +200,34 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
 
 void Client::clientQuitCommand(const std::string &args, Server *server) {
     
+    std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Client " << getClientNickname() << " has been disconnected." << std::endl;
+    
     sendMessage(args);
     
     // close file_descriptor
     
     close(getClientFd());
 
-    // Delete client from epoll
-    
+    // Delete client from epoll    
+
     epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
 
     // Delete client from channel(s)
     
     std::map<std::string, Channel*> &channels = server->getServerChannels();
-    for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    
+    for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
         Channel *channel = it->second;
         channel->removeClient(this);
-        channel->removeOperator(this, server);
+        channel->removeOperator(this);
     }
 
     // Delete client from server
-    
+
     server->getClients().erase(getClientFd());
+        
     delete this;
 
-    std::string successMsg = "[COMMAND]: Client disconnected.";
-    std::cout << successMsg << std::endl;
 }
 
 void Client::clientTopicCommand(const std::string &args, Server *server) {
@@ -283,8 +275,9 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     // Set topic
     
     channel->setChannelTopic(topic);
-    std::string successMsg = "[COMMAND]: Topic set to " + topic;
-    sendMessage(successMsg);
+    std::string topicMsg = " :" + topic;
+    sendRequest(getClientNickname(), "TOPIC", channel, topicMsg);
+    std::cout << GREEN << "[COMMAND]: " << channel->getChannelName() << " topic set to " + topic << RESET_COLOR << std::endl;
 }
 
 void Client::clientInviteCommand(const std::string &args, Server *server) {

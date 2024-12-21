@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 16:43:47 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 19:13:44 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,14 +65,14 @@ void Channel::addChannelOperators(Client *client) {
     _channelOperators.push_back(client);
 }
 
-void Channel::removeOperator(Client *client, Server *server) {
+void Channel::removeOperator(Client *client) {
     std::vector<Client*>::iterator it = std::find(_channelOperators.begin(), _channelOperators.end(), client);
     if (it != _channelOperators.end()) {
         _channelOperators.erase(it);
     }
-    if (_channelOperators.empty()) {
-        server->removeServerChannel(getChannelName());
-    }
+    // if (_channelOperators.empty()) {
+    //     server->removeServerChannel(getChannelName());
+    // }
 }
 
 // Methods
@@ -93,7 +93,7 @@ void Channel::removeClient(Client *client) {
 void Channel::sendMessageToChannel(std::string message, Client *sender) {
     (void)sender;
     for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
-            std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << "Sending message to " << (*it)->getClientNickname() << std::endl;
+            std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Sending message to " << (*it)->getClientNickname() << std::endl;
             (*it)->sendMessage(message);
     }
 }
