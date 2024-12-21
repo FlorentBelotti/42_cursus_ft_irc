@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 01:29:27 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 16:43:47 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ void Channel::removeOperator(Client *client, Server *server) {
     if (it != _channelOperators.end()) {
         _channelOperators.erase(it);
     }
-    (void)server;
     if (_channelOperators.empty()) {
         server->removeServerChannel(getChannelName());
     }

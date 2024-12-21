@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 00:09:57 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 16:56:46 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,7 @@ class Client {
 
         bool                        isValidName(const std::string &name, size_t max_length);
         std::vector<std::string>    getArgsVector(const std::string &args);
+        void                        sendRequest(const std::string &nickname, const std::string &cmd, Channel *channel);
         void                        clientNicknameCommand(const std::string &args);
         void                        clientUserCommand(const std::string &args);
         void                        clientJoinCommand(const std::string &args, Server *server);

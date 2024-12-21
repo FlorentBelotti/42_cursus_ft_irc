@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 01:25:40 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 17:14:28 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
         argsVector.push_back(token);
     }
     return argsVector;
+}
+
+void Client::sendRequest(const std::string &nickname, const std::string &cmd, Channel *channel) {
+    std::string request = ":" + nickname + " " + cmd + " " + channel->getChannelName() + "\r\n";
+    channel->sendMessageToChannel(request, this);
 }
 
 // Commands
@@ -104,7 +109,7 @@ void Client::clientUserCommand(const std::string &args) {
 
 void Client::clientJoinCommand(const std::string &args, Server *server) {
     
-    // Check if channel exists
+    // Join channel if it exists
     
     if (server->getServerChannels().find(args) != server->getServerChannels().end()) {
 
@@ -112,10 +117,12 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         
         addClientChannel(args, server->getServerChannels()[args]);
         server->getServerChannels()[args]->addClient(this);
-        std::string successMsg = "[COMMAND]: Channel " + args + " joined.";
-        sendMessage(successMsg);
-        //server->getServerChannels()[args]->sendMessageToChannel("[" + getClientNickname() + "] has joined the channel.", this);
-    } else {
+        sendRequest(getClientNickname(), "JOIN", server->getServerChannels()[args]);
+    } 
+    
+    // Create Channel if it doesn't exist
+    
+    else {
         
         // Check if channel name is valid
         
@@ -124,7 +131,6 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
             sendMessage(errorMsg);
             return;
         }
-        
         if (!isValidName(&args[1], 9)) {
             std::string errorMsg = "[USAGE]: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
             sendMessage(errorMsg);
@@ -132,54 +138,42 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         }
 
         server->addServerChannel(args, new Channel(args));
-        
         Channel* channel = server->getServerChannels()[args];
-    
-        // Ajouter le canal au client
         addClientChannel(args, channel);
-
-        // Ajouter le client au canal
         channel->addClient(this);
-
-        // Ajouter le client aux opérateurs du canal
         channel->addChannelOperators(this);
-    
-        // Envoyer les messages de réponse IRC
-        std::string joinMsg = ":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n";
-        channel->sendMessageToChannel(joinMsg, this);
+        sendRequest(getClientNickname(), "JOIN", channel);
     }
 }
 
 void Client::clientPartCommand(const std::string &args, Server *server) {
-    
+
     // Check if channel exists
     
-    if (server->getServerChannels().find(args) == server->getServerChannels().end()) {
+    std::cout << RED << "[DEBUG]: Step 1" << RESET_COLOR << std::endl;
 
-        // Client join channel
-        
-        std::string successMsg = "[COMMAND]: Channel doesn't exist.";
-        sendMessage(successMsg);
+    size_t spacePos = args.find(' ');
+    if (spacePos == std::string::npos) {
+        std::string errorMsg = "[USAGE]: /part <#channel>";
+        sendMessage(errorMsg);
+        return;
+    }
+    std::string channelName = args.substr(0, spacePos);
+    if (channelName[0] != '#' && channelName[0] != '&') {
+        std::string errorMsg = "[USAGE]: Channel name must start with a '#' or '&' character.";
+        sendMessage(errorMsg);
+        return;
+    }
+    if (server->getServerChannels().find(channelName) == server->getServerChannels().end()) {
+        std::string errorMsg = "[USAGE]: Channel doesn't exist.";
+        sendMessage(errorMsg);
         return;
     }
     
-    else {
-        
-        // Remove client from channel
-        
-        server->getServerChannels()[args]->removeClient(this);
-        
-        // Remove channel from client
-        
-        removeClientChannel(args);
-
-        // Remove client from channel's operators
-        
-        server->getServerChannels()[args]->removeOperator(this, server);
-
-        std::string successMsg = "[COMMAND]: Channel " + args + " exited.";
-        sendMessage(successMsg);
-    }
+    sendRequest(getClientNickname(), "PART", server->getServerChannels()[channelName]);
+    server->getServerChannels()[channelName]->removeClient(this);
+    removeClientChannel(channelName);
+    server->getServerChannels()[channelName]->removeOperator(this, server);
 }
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
