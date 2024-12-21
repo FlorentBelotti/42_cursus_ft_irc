@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/15 17:21:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 00:46:26 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 16:37:40 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,9 @@ void Client::setClientRealname(std::string realname) {
 // Methods
 
 void Client::sendMessage(std::string const &msg) {
-    send(getClientFd(), msg.c_str(), msg.size(), 0);
+    std::string formatedMsg = msg + "\r\n";
+    send(getClientFd(), formatedMsg.c_str(), formatedMsg.size(), 0);
+    memset((void*)formatedMsg.c_str(), 0, formatedMsg.length());
 }
 
 void Client::sendFile(std::string const &file) {

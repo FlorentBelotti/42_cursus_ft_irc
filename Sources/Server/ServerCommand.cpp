@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 01:48:10 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/21 15:11:26 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
 
     if (isCommand(command)) {
         
-        std::cout << "is command" << std::endl;
-
         // Extract command and its arguments
 
         std::string args = (spacePos != std::string::npos) ? msg.substr(spacePos + 1) : "";

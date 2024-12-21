@@ -6,7 +6,7 @@
 #    By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 16:56:14 by fbelotti          #+#    #+#              #
-#    Updated: 2024/12/17 13:18:13 by fbelotti         ###   ########.fr        #
+#    Updated: 2024/12/21 16:30:11 by fbelotti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,8 +34,8 @@ all: announce intro $(NAME)
 announce:
 	@echo "\n==================================="
 	@echo "Project: $(NAME)\n"
-	@echo "Author: $(AUTHOR)\n"
-	@echo "Author: $(AUTHOR_2)"
+	@echo "Author: $(AUTHOR)"
+	@echo "Author: $(AUTHOR_2)\n"
 	@echo "===================================\n"
 
 intro:
