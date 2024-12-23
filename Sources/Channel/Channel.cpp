@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 01:45:56 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:37:18 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,12 +82,7 @@ void Channel::addClient(Client *client) {
 }
 
 void Channel::removeClient(Client *client) {
-    for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
-        if (*it == client) {
-            _channelClients.erase(it);
-            return;
-        }
-    }
+    _channelClients.erase(std::remove(_channelClients.begin(), _channelClients.end(), client), _channelClients.end());
 }
 
 void Channel::restrictedBroadcast(std::string message, Client *sender) {

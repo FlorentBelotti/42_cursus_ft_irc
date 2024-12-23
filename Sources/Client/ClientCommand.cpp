@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 02:19:06 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 14:45:26 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
     std::vector<std::string> argsVector;
     std::istringstream iss(args);
     std::string token;
+    int i = 0;
     while (iss >> token) {
+        std::cout << MAGENTA << "arguments[" << i++ << "] : " << token << std::endl;
         argsVector.push_back(token);
     }
     return argsVector;
@@ -102,6 +104,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 
         // Client join channel
         
+        std::cout << getClientUsername() << " Join already existing channel" << std::endl;
         Channel* channel = server->getServerChannels()[args];
         addClientChannel(args, channel);
         channel->addClient(this);
@@ -124,7 +127,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
             sendMessage(errorMsg);
             return;
         }
-
+        std::cout << getClientUsername() << " Join a new channel" << std::endl;
         server->addServerChannel(args, new Channel(args));
         Channel* channel = server->getServerChannels()[args];
         addClientChannel(args, channel);
@@ -193,7 +196,14 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
         Channel *channel = server->getServerChannels().find(target)->second;
         if (!channel)
             return;
-        channel->restrictedBroadcast(":" + getClientNickname() + " PRIVMSG " + channel->getChannelName() + " :" + message + "\r\n", this);
+        std::vector<Client*> clients = channel->getChannelClients();
+        if (std::find(clients.begin(), clients.end(), this) != clients.end()) {
+            channel->restrictedBroadcast(":" + getClientNickname() + " PRIVMSG " + channel->getChannelName() + " :" + message + "\r\n", this);
+        } else {
+            std::string errorMsg = "[USAGE]: You are not registered on " + target + ".";
+            sendMessage(errorMsg);
+            return ;
+        }
     }
     else {
         Client *targetClient = server->getClientByNickname(target);
@@ -346,24 +356,29 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     // Check command arguments
     
-    if (arguments.size() < 2) {
+    if (arguments.size() != 3) {
         std::string errorMsg = "[USAGE]: /kick <nickname> <channel> <reason>";
         sendMessage(errorMsg);
         return;
     }
 
-    std::string nickname = arguments[0];
-    std::string channelName = arguments[1];
-    std::string reason = args.substr(nickname.length() + channelName.length() + 2);
+
+    std::string channelName = arguments[0];
+    std::string nickname = arguments[1];
+    std::cout << RESET_COLOR << "nick: " << nickname << std::endl;
+    std::cout << RESET_COLOR << "chan: " << channelName << std::endl;
+    std::string reason = arguments[2];
 
     // Check if channel exists
     
+
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
         std::string errorMsg = "[USAGE]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
+
 
     Channel* channel = it->second;
 
@@ -375,6 +390,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         return;
     }
 
+
     // Check if client exists
 
     Client* kickedClient = server->getClientByNickname(nickname);
@@ -384,6 +400,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         return;
     }
 
+
     if (kickedClient == this) {
         std::string errorMsg = "[USAGE]: You cannot kick yourself.";
         sendMessage(errorMsg);
@@ -392,11 +409,9 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     // Kick client
     
-    std::string kickMsg = "You have been kicked from channel " + channelName + " by " + getClientNickname() + " for " + reason + ".";
-    kickedClient->sendMessage(kickMsg);
-
+    std::string kickMsg = ":" + getClientNickname() + " KICK " + channelName + " " + nickname + " :" + reason + "\r\n";
     channel->removeClient(kickedClient);
     kickedClient->removeClientChannel(channelName);
-
-    channel->broadcast(":" + getClientNickname() + " KICK " + channelName + " " + nickname + " :" + reason + "\r\n");
+    channel->broadcast(kickMsg);
+    kickedClient->sendMessage(kickMsg);
 }
