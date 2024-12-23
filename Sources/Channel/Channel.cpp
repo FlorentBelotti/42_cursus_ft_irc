@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 14:37:18 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 17:49:50 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,4 +113,8 @@ void Channel::sendInviteToChannel(Client *client) {
     for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
         (*it)->sendInvite(client);
     }
+}
+
+bool Channel::isOperator(const Client* client) const {
+    return std::find(_channelOperators.begin(), _channelOperators.end(), client) != _channelOperators.end();
 }

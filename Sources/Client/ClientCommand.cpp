@@ -6,11 +6,19 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 14:45:26 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 17:52:53 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Client.hpp"
+
+// Debug
+
+void printClientNicknames(const std::vector<Client*>& clients) {
+    for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
+        std::cout << (*it)->getClientNickname() << std::endl;
+    }
+}
 
 // Commands utils
 
@@ -284,7 +292,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     Channel* channel = it->second;
     
-    if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
+    if (!channel->isOperator(this)) {
         std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
@@ -382,10 +390,15 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     Channel* channel = it->second;
 
+    // std::cout << "CHANNEL" << std::endl;
+    // printClientNicknames(channel->getChannelClients());
+    // std::cout << "OPERATOR" << std::endl;
+    // printClientNicknames(channel->getChannelOperators());
+    
     // Check if client is an operator
     
-    if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
-        std::string errorMsg = "[USAGE]: You are not an operator of channel " + channelName + ".";
+    if (!channel->isOperator(this)) {
+        std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
     }

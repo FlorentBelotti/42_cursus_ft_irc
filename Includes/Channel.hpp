@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 01:42:40 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 17:49:56 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,5 @@ class Channel {
         void broadcast(std::string message);
         void sendFileToChannel(std::string message, Client *sender);
         void sendInviteToChannel(Client *client);
+        bool isOperator(const Client *client) const;
 };
