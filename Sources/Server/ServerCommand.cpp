@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 15:11:26 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 02:15:25 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
         // std::cout << MAGENTA << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
         // send(user_fd, "Message received", 16, 0);
         
-        getClients()[user_fd]->getClientChannel()->sendMessageToChannel(msg, getClients()[user_fd]);
+        getClients()[user_fd]->getClientChannel()->restrictedBroadcast(msg, getClients()[user_fd]);
         
         // Handle client's buffer
         

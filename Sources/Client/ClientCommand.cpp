@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 19:46:03 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/23 02:19:06 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,6 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
         argsVector.push_back(token);
     }
     return argsVector;
-}
-
-void Client::sendRequest(const std::string &nickname, const std::string &cmd, Channel *channel, const std::string &other) {
-    std::string request = ":" + nickname + " " + cmd + " " + channel->getChannelName() + other + "\r\n";
-    channel->sendMessageToChannel(request, this);
 }
 
 // Commands
@@ -107,9 +102,10 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 
         // Client join channel
         
-        addClientChannel(args, server->getServerChannels()[args]);
-        server->getServerChannels()[args]->addClient(this);
-        sendRequest(getClientNickname(), "JOIN", server->getServerChannels()[args], "");
+        Channel* channel = server->getServerChannels()[args];
+        addClientChannel(args, channel);
+        channel->addClient(this);
+        channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
     } 
     
     // Create Channel if it doesn't exist
@@ -134,7 +130,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         addClientChannel(args, channel);
         channel->addClient(this);
         channel->addChannelOperators(this);
-        sendRequest(getClientNickname(), "JOIN", channel, "");
+        channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
     }
 }
 
@@ -160,10 +156,11 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
         return;
     }
     
-    sendRequest(getClientNickname(), "PART", server->getServerChannels()[channelName], "");
-    server->getServerChannels()[channelName]->removeClient(this);
+    Channel *channel = server->getServerChannels()[channelName];
+    channel->removeClient(this);
     removeClientChannel(channelName);
-    server->getServerChannels()[channelName]->removeOperator(this);
+    channel->removeOperator(this);
+    channel->broadcast(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
 }
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
@@ -178,24 +175,35 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
         return;
     }
 
-    std::string channelName = arguments[0];
-    std::string message = args.substr(channelName.length() + 1); // Extraire le message
-
-    // Check if channel exists
+    std::string target = arguments[0];
+    std::string message = args.substr(target.length() + 1); // Extraire le message
+    if (!message.empty() && message[0] == ':') {
+        message = message.substr(1);
+    }
     
-    std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
+    // Check if channel exists
+    std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(target);
     if (it == server->getServerChannels().end()) {
-        std::string errorMsg = "[USAGE]: Channel " + channelName + " does not exist.";
+        std::string errorMsg = "[USAGE]: Channel " + target + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
 
-    Channel* channel = it->second;
-
-    // Send message
-    
-    std::string fullMessage = "[" + getClientNickname() + "]: " + message;
-    channel->sendMessageToChannel(fullMessage, this);
+    if (target[0] == '#') {
+        Channel *channel = server->getServerChannels().find(target)->second;
+        if (!channel)
+            return;
+        channel->restrictedBroadcast(":" + getClientNickname() + " PRIVMSG " + channel->getChannelName() + " :" + message + "\r\n", this);
+    }
+    else {
+        Client *targetClient = server->getClientByNickname(target);
+        if (!targetClient) {
+            std::string errorMsg = "[USAGE]: Client " + target + " does not exist.";
+            sendMessage(errorMsg);
+            return;
+        }
+        targetClient->sendMessage(":" + getClientNickname() + " PRIVMSG " + target + " :" + message + "\r\n");
+    }
 }
 
 void Client::clientQuitCommand(const std::string &args, Server *server) {
@@ -276,7 +284,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     channel->setChannelTopic(topic);
     std::string topicMsg = " :" + topic;
-    sendRequest(getClientNickname(), "TOPIC", channel, topicMsg);
+    channel->broadcast(":" + getClientNickname() + " TOPIC " + channel->getChannelName() + " :" + topic + "\r\n");
     std::cout << GREEN << "[COMMAND]: " << channel->getChannelName() << " topic set to " + topic << RESET_COLOR << std::endl;
 }
 
@@ -352,7 +360,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
-        std::string errorMsg = "Error: Channel " + channelName + " does not exist.";
+        std::string errorMsg = "[USAGE]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
@@ -362,7 +370,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     // Check if client is an operator
     
     if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
-        std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
+        std::string errorMsg = "[USAGE]: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
     }
@@ -371,7 +379,13 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     Client* kickedClient = server->getClientByNickname(nickname);
     if (!kickedClient) {
-        std::string errorMsg = "Error: Client " + nickname + " does not exist.";
+        std::string errorMsg = "[USAGE]: Client " + nickname + " does not exist.";
+        sendMessage(errorMsg);
+        return;
+    }
+
+    if (kickedClient == this) {
+        std::string errorMsg = "[USAGE]: You cannot kick yourself.";
         sendMessage(errorMsg);
         return;
     }
@@ -384,6 +398,5 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     channel->removeClient(kickedClient);
     kickedClient->removeClientChannel(channelName);
 
-    std::string successMsg = "Client " + nickname + " has been kicked from channel " + channelName + ".";
-    sendMessage(successMsg);
+    channel->broadcast(":" + getClientNickname() + " KICK " + channelName + " " + nickname + " :" + reason + "\r\n");
 }
