@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 02:15:25 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/25 18:24:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,19 +44,7 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
         processClientCommand(command, args, user_fd);
 
     } else {
-        
-        std::cout << "is msg" << std::endl;
-
-        // Handle server's response
-        
-        // std::cout << MAGENTA << "[" << getClients()[user_fd]->getClientHostname() << "]: " << RESET_COLOR << msg << std::endl;
-        // send(user_fd, "Message received", 16, 0);
-        
-        getClients()[user_fd]->getClientChannel()->restrictedBroadcast(msg, getClients()[user_fd]);
-        
-        // Handle client's buffer
-        
-        getClients()[user_fd]->setClientBuffer("");
+        std::cout << "is not a command" << std::endl;
     }
 }
 

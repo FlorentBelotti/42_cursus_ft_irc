@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 17:52:53 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/25 22:56:13 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,7 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     removeClientChannel(channelName);
     channel->removeOperator(this);
     channel->broadcast(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
+    sendMessage(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
 }
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
@@ -190,14 +191,6 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     std::string message = args.substr(target.length() + 1); // Extraire le message
     if (!message.empty() && message[0] == ':') {
         message = message.substr(1);
-    }
-    
-    // Check if channel exists
-    std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(target);
-    if (it == server->getServerChannels().end()) {
-        std::string errorMsg = "[USAGE]: Channel " + target + " does not exist.";
-        sendMessage(errorMsg);
-        return;
     }
 
     if (target[0] == '#') {
@@ -334,7 +327,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 
     // Check if client is an operator
     
-    if (std::find(channel->getChannelOperators().begin(), channel->getChannelOperators().end(), this) == channel->getChannelOperators().end()) {
+    if (!channel->isOperator(this)) {
         std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
@@ -351,11 +344,9 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 
     // Send invite
     
-    std::string inviteMsg = "You have been invited to join channel " + channelName + " by " + getClientNickname() + ".";
+    std::string inviteMsg = ":" + getClientNickname() + " INVITE " + invitedClient->getClientNickname() + " " + channelName + "\r\n";
     invitedClient->sendMessage(inviteMsg);
-
-    std::string successMsg = "Client " + nickname + " has been invited to channel " + channelName + ".";
-    sendMessage(successMsg);
+    sendMessage(inviteMsg);
 }
 
 void Client::clientKickCommand(const std::string &args, Server *server) {
@@ -364,7 +355,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     // Check command arguments
     
-    if (arguments.size() != 3) {
+    if (arguments.size() < 3) {
         std::string errorMsg = "[USAGE]: /kick <nickname> <channel> <reason>";
         sendMessage(errorMsg);
         return;
@@ -375,10 +366,14 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     std::string nickname = arguments[1];
     std::cout << RESET_COLOR << "nick: " << nickname << std::endl;
     std::cout << RESET_COLOR << "chan: " << channelName << std::endl;
-    std::string reason = arguments[2];
+    std::string reason;
+    for (std::vector<std::string>::size_type i = 2; i < arguments.size(); ++i) {
+        if (i > 2)
+            reason += " ";
+        reason += arguments[i];
+    }
 
     // Check if channel exists
-    
 
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
@@ -389,11 +384,6 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
 
     Channel* channel = it->second;
-
-    // std::cout << "CHANNEL" << std::endl;
-    // printClientNicknames(channel->getChannelClients());
-    // std::cout << "OPERATOR" << std::endl;
-    // printClientNicknames(channel->getChannelOperators());
     
     // Check if client is an operator
     
