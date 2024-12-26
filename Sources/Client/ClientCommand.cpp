@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 00:18:16 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 00:22:32 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,13 +236,9 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     if (!channel->hasOperator()) {
         std::cout << "closing channel" << std::endl;
         std::vector<Client*> clientsToRemove = channel->getChannelClients();
-
         for (std::vector<Client*>::iterator it = clientsToRemove.begin(); it != clientsToRemove.end(); ++it) {
-            std::cout << "1" << std::endl;
             channel->removeClient(*it);
-            std::cout << "2" << std::endl;
             (*it)->sendMessage(":" + (*it)->getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
-            std::cout << "3" << std::endl;
             (*it)->removeClientChannel(channelName);
         }
         server->removeServerChannel(channelName);
@@ -493,7 +489,6 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         return;
     }
 
-
     // Check if client exists
 
     Client* kickedClient = server->getClientByNickname(nickname);
@@ -502,7 +497,6 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         sendMessage(errorMsg);
         return;
     }
-
 
     if (kickedClient == this) {
         std::string errorMsg = "[USAGE]: You cannot kick yourself.";
