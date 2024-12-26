@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 23:01:25 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 23:50:44 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,6 @@ class Channel {
         void sendInviteToChannel(Client *client);
         void addChannelInvitedClient(Client *client);
         bool isOperator(const Client *client) const;
+        bool hasOperator() const;
         bool isInvited(const Client* client) const;
 };

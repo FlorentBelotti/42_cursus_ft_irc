@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 23:20:32 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 00:18:16 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     // Create Channel if it doesn't exist
     
     else {
+        
         // Check if channel name is valid
         
         if (args[0] != '#' && args[0] != '&') {
@@ -194,6 +195,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         channel->addClient(this);
         channel->addChannelOperators(this);
         channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +o " + getClientNickname() + "\r\n");
     }
 }
 
@@ -231,6 +233,20 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     channel->removeOperator(this);
     channel->broadcast(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
     sendMessage(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
+    if (!channel->hasOperator()) {
+        std::cout << "closing channel" << std::endl;
+        std::vector<Client*> clientsToRemove = channel->getChannelClients();
+
+        for (std::vector<Client*>::iterator it = clientsToRemove.begin(); it != clientsToRemove.end(); ++it) {
+            std::cout << "1" << std::endl;
+            channel->removeClient(*it);
+            std::cout << "2" << std::endl;
+            (*it)->sendMessage(":" + (*it)->getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
+            std::cout << "3" << std::endl;
+            (*it)->removeClientChannel(channelName);
+        }
+        server->removeServerChannel(channelName);
+    }
 }
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
@@ -311,7 +327,6 @@ void Client::clientQuitCommand(const std::string &args, Server *server) {
     server->getClients().erase(getClientFd());
         
     delete this;
-
 }
 
 void Client::clientTopicCommand(const std::string &args, Server *server) {
@@ -524,8 +539,37 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     if (arguments[1] == "+i") {
         channel->setChannelStatus(true);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +i\r\n");
+        return;
     } else if (arguments[1] == "-i") {
         channel->setChannelStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -i\r\n");
+        return;
+    }
+
+    if (arguments[1] == "+o") {
+        Client *targetClient = server->getClientByNickname(arguments[2]);
+        if (!targetClient) {
+            std::string errorMsg = "Error: Client " + arguments[2] + " does not exist.";
+            sendMessage(errorMsg);
+            return;
+        }
+        if (channel->isOperator(targetClient)) {
+            std::string errorMsg = "Error: Client " + arguments[2] + " is already an operator of " + channel->getChannelName() + ".";
+            sendMessage(errorMsg);
+            return;
+        }
+        channel->addChannelOperators(targetClient);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +o " + targetClient->getClientNickname() + "\r\n");
+        return;
+    } else if (arguments[1] == "-o") {
+        Client *targetClient = server->getClientByNickname(arguments[2]);
+        if (!targetClient) {
+            std::string errorMsg = "Error: Client " + arguments[2] + " does not exist.";
+            sendMessage(errorMsg);
+            return;
+        }
+        channel->removeOperator(targetClient);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -o " + targetClient->getClientNickname() + "\r\n");
+        return;
     }
 }
