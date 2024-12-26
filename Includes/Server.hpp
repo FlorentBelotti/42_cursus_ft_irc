@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 01:47:50 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 21:41:32 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,7 @@ class Server {
         std::map<int, Client *>             &getClients();
         std::map<std::string, Channel *>    &getServerChannels();
         Client                              *getClientByNickname(std::string const &nickname);
+        std::string                         getServerPswd() const;
 
     // Channel
 

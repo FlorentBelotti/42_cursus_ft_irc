@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/15 17:21:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/21 16:37:40 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 21:32:03 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,10 @@ void Client::setClientLogStatus(bool status) {
 
 void Client::setClientPswdTries(int tries) {
     _pswdTries = tries;
+}
+
+void Client::addClientPswdTry() {
+    _pswdTries++;
 }
 
 void Client::setClientPassword(std::string password) {

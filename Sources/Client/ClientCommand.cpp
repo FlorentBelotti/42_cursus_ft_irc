@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/25 22:56:13 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 22:14:41 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,22 +48,56 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
 
 // Commands
 
-void Client::clientPassCommand(const std::string &args) {
+void Client::clientPassCommand(const std::string &args, Server *server) {
     
     // Check args
     
+    if (_isLogged) {
+        std::string errorMsg = "Error: You are already logged in.";
+        sendMessage(errorMsg);
+        return;
+    }
+
     if (args.empty() || args.find(' ') != std::string::npos) {
         std::string errorMsg = "[USAGE]: /pass <password>";
         sendMessage(errorMsg);
         return;
     }
     
-    setClientPassword(args);
-    std::cout << GREEN << "[COMMAND]: Password set." << RESET_COLOR << std::endl;
+    if (getClientPswdTries() > 3) {
+        std::string errorMsg = "Error: Too many password tries.";
+        sendMessage(errorMsg);
+        close(getClientFd());
+        epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
+        server->getClients().erase(getClientFd());  
+        delete this;
+        return;
+    }
+
+    std::string correctPassword = server->getServerPswd();
+    if (args != correctPassword) {
+        std::string errorMsg = "Error: Incorrect password.";
+        sendMessage(errorMsg);
+        addClientPswdTry();
+        _isLogged = false;
+        return;
+    } else {
+        setClientPassword(args);
+        _isLogged = true;
+        std::string successMsg = "You are now successefully logged in.";
+        sendMessage(successMsg);
+        std::cout << GREEN << "[COMMAND]: Password set." << RESET_COLOR << std::endl;   
+    }
 }
 
 void Client::clientNicknameCommand(const std::string &args) {
     
+    // if (!_isLogged) {
+    //     std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+    //     sendMessage(errorMsg);
+    //     return;
+    // }
+
     if (args.empty() || args.find(' ') != std::string::npos) {
         std::string errorMsg = "[USAGE]: /nickname <nickname>";
         std::cout << "not valid" << std::endl;
@@ -96,6 +130,7 @@ void Client::clientUserCommand(const std::string &args) {
     setClientHostname(argsVector[1]);
     setClientServername(argsVector[2]);
     setClientRealname(argsVector[3]);
+    setClientPswdTries(0);
     std::string successMsg = "[COMMAND]: Client infos updated\n";
     // successMsg += "Username: " + getClientUsername() + "\n";
     // successMsg += "Hostname: " + getClientHostname() + "\n";
@@ -106,6 +141,12 @@ void Client::clientUserCommand(const std::string &args) {
 
 void Client::clientJoinCommand(const std::string &args, Server *server) {
     
+    if (!_isLogged) {
+        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        sendMessage(errorMsg);
+        return;
+    }
+
     // Join channel if it exists
     
     if (server->getServerChannels().find(args) != server->getServerChannels().end()) {
@@ -147,6 +188,12 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 
 void Client::clientPartCommand(const std::string &args, Server *server) {
 
+    if (!_isLogged) {
+        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        sendMessage(errorMsg);
+        return;
+    }
+    
     // Check if channel exists
     
     size_t spacePos = args.find(' ');
@@ -176,6 +223,13 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
 }
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
+    
+
+    if (!_isLogged) {
+        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        sendMessage(errorMsg);
+        return;
+    }
     
     // Check command arguments
     
@@ -251,6 +305,12 @@ void Client::clientQuitCommand(const std::string &args, Server *server) {
 
 void Client::clientTopicCommand(const std::string &args, Server *server) {
     
+    if (!_isLogged) {
+        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        sendMessage(errorMsg);
+        return;
+    }
+    
     // Check command arguments
     
     std::vector<std::string> arguments = getArgsVector(args);
@@ -300,6 +360,12 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
 }
 
 void Client::clientInviteCommand(const std::string &args, Server *server) {
+
+    if (!_isLogged) {
+        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        sendMessage(errorMsg);
+        return;
+    }
     
     std::vector<std::string> arguments = getArgsVector(args);
 
@@ -350,6 +416,12 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 }
 
 void Client::clientKickCommand(const std::string &args, Server *server) {
+
+    if (!_isLogged) {
+        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        sendMessage(errorMsg);
+        return;
+    }
     
     std::vector<std::string> arguments = getArgsVector(args);
 

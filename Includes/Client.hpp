@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 01:32:33 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 21:40:36 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,10 +85,11 @@ class Client {
         void setClientBuffer(std::string buffer);
         void setClientBotStatus(bool status);
         void setClientLogStatus(bool status);
-        void setClientPswdTries(int tries);
         void setClientOperatorStatus(bool status);
         void addClientChannel(std::string channelName, Channel *channel);
         void removeClientChannel(std::string channelName);
+        void setClientPswdTries(int tries);
+        void addClientPswdTry();
         void setClientPassword(std::string password);
 
     // Command
@@ -104,7 +105,7 @@ class Client {
         void                        clientTopicCommand(const std::string &args, Server *server);
         void                        clientInviteCommand(const std::string &args, Server *server);
         void                        clientKickCommand(const std::string &args, Server *server);
-        void                        clientPassCommand(const std::string &args);
+        void                        clientPassCommand(const std::string &args, Server *server);
         
     // Methods
 

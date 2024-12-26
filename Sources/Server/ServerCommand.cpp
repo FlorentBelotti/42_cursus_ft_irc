@@ -6,14 +6,14 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/25 18:24:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 21:39:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Server.hpp"
 
 bool isCommand(const std::string &cmd) {
-    if (cmd == "NICK" || cmd == "USER" || cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" || cmd == "QUIT" || cmd == "TOPIC" || cmd == "INVITE" || cmd == "KICK" || cmd == "HELP" || cmd == "PASS" || cmd == "CAP" || cmd == "MODE" || cmd == "WHO")
+    if (cmd == "NICK" || cmd == "USER" || cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" || cmd == "QUIT" || cmd == "TOPIC" || cmd == "INVITE" || cmd == "KICK" || cmd == "PASS" || cmd == "CAP" || cmd == "MODE" || cmd == "WHO")
         return true;
     else
         return false;
@@ -40,7 +40,7 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
         std::string args = (spacePos != std::string::npos) ? msg.substr(spacePos + 1) : "";
         
         // Process command
-
+        
         processClientCommand(command, args, user_fd);
 
     } else {
@@ -58,7 +58,6 @@ Server::commands Server::defineCommand(const std::string &command) {
     if (command == "TOPIC") return TOPIC;
     if (command == "INVITE") return INVITE;
     if (command == "KICK") return KICK;
-    if (command == "HELP") return HELP;
     if (command == "PASS") return PASS;
     if (command == "CAP") return CAP;
     if (command == "MODE") return MODE;
@@ -82,7 +81,7 @@ void Server::processClientCommand(const std::string& command, const std::string&
                 break;
             case PASS:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /PASS command with args: " << args << std::endl;
-                getClients()[user_fd]->clientPassCommand(args);
+                getClients()[user_fd]->clientPassCommand(args, this);
                 break;
             case USER:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /USER command with args: " << args << RESET_COLOR << std::endl;
