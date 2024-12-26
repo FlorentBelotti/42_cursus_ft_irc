@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 17:49:50 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 23:18:40 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,15 @@ std::vector<Client*> Channel::getChannelOperators() const {
     return _channelOperators;
 }
 
+bool Channel::getChannelStatus() const {
+    return _isRestricted;
+}
+
 // Setters
+
+void Channel::setChannelStatus(bool status) {
+    _isRestricted = status;
+}
 
 void Channel::setChannelName(std::string channelName) {
     _channelName = channelName;
@@ -63,6 +71,10 @@ void Channel::setChannelPassword(std::string channelPassword) {
 
 void Channel::addChannelOperators(Client *client) {
     _channelOperators.push_back(client);
+}
+
+void Channel::addChannelInvitedClient(Client *client) {
+    _channelInvited.push_back(client);
 }
 
 void Channel::removeOperator(Client *client) {
@@ -117,4 +129,8 @@ void Channel::sendInviteToChannel(Client *client) {
 
 bool Channel::isOperator(const Client* client) const {
     return std::find(_channelOperators.begin(), _channelOperators.end(), client) != _channelOperators.end();
+}
+
+bool Channel::isInvited(const Client* client) const {
+    return std::find(_channelInvited.begin(), _channelInvited.end(), client) != _channelInvited.end();
 }

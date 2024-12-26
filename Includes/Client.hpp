@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 21:40:36 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 22:34:47 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ class Client {
         void                        clientInviteCommand(const std::string &args, Server *server);
         void                        clientKickCommand(const std::string &args, Server *server);
         void                        clientPassCommand(const std::string &args, Server *server);
+        void                        clientModeCommand(const std::string &args, Server *server);
         
     // Methods
 

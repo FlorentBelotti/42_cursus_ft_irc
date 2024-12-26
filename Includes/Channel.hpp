@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/23 17:49:56 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 23:01:25 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,13 @@ class Channel {
     
     // Channel's informations
     
-        std::string _channelName;
-        std::string _channelTopic;
-        std::string _channelPassword;
-        std::vector<Client*> _channelClients;
-        std::vector<Client*> _channelOperators;
+        std::string             _channelName;
+        std::string             _channelTopic;
+        std::string             _channelPassword;
+        std::vector<Client*>    _channelClients;
+        std::vector<Client*>    _channelOperators;
+        std::vector<Client*>    _channelInvited;
+        bool                    _isRestricted;
     
     public:
     
@@ -42,17 +44,19 @@ class Channel {
     
     // Getters
         
-        std::string getChannelName() const;
-        std::string getChannelTopic() const;
-        std::string getChannelPassword() const;
-        std::vector<Client*> getChannelClients() const;
-        std::vector<Client*> getChannelOperators() const;
+        std::string             getChannelName() const;
+        std::string             getChannelTopic() const;
+        std::string             getChannelPassword() const;
+        std::vector<Client*>    getChannelClients() const;
+        std::vector<Client*>    getChannelOperators() const;
+        bool                    getChannelStatus() const;
         
     // Setters
     
         void setChannelName(std::string channelName);
         void setChannelTopic(std::string channelTopic);
         void setChannelPassword(std::string channelPassword);
+        void setChannelStatus(bool status);
         void addChannelOperators(Client *client);
         void removeOperator(Client *client);
         
@@ -64,5 +68,7 @@ class Channel {
         void broadcast(std::string message);
         void sendFileToChannel(std::string message, Client *sender);
         void sendInviteToChannel(Client *client);
+        void addChannelInvitedClient(Client *client);
         bool isOperator(const Client *client) const;
+        bool isInvited(const Client* client) const;
 };

@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 22:14:41 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 23:20:32 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,19 +151,30 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     
     if (server->getServerChannels().find(args) != server->getServerChannels().end()) {
 
-        // Client join channel
-        
-        std::cout << getClientUsername() << " Join already existing channel" << std::endl;
         Channel* channel = server->getServerChannels()[args];
-        addClientChannel(args, channel);
-        channel->addClient(this);
-        channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
-    } 
+        if (channel->getChannelStatus()) {
+            if (channel->isInvited(this)) {
+                std::cout << getClientUsername() << " Join a restricted channel" << std::endl;
+                addClientChannel(args, channel);
+                channel->addClient(this);
+                channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
+            }
+            else {
+                std::string errorMsg = "Error: You are not invited to " + channel->getChannelName() + ".";
+                sendMessage(errorMsg);
+                return;
+            }
+        } else {
+            std::cout << getClientUsername() << " Join an already existing channel" << std::endl;
+            addClientChannel(args, channel);
+            channel->addClient(this);
+            channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");   
+        }
+    }
     
     // Create Channel if it doesn't exist
     
     else {
-        
         // Check if channel name is valid
         
         if (args[0] != '#' && args[0] != '&') {
@@ -410,6 +421,8 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 
     // Send invite
     
+    std::cout << "invitation to " << invitedClient->getClientNickname() << std::endl;
+    channel->addChannelInvitedClient(invitedClient);
     std::string inviteMsg = ":" + getClientNickname() + " INVITE " + invitedClient->getClientNickname() + " " + channelName + "\r\n";
     invitedClient->sendMessage(inviteMsg);
     sendMessage(inviteMsg);
@@ -489,4 +502,30 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     kickedClient->removeClientChannel(channelName);
     channel->broadcast(kickMsg);
     kickedClient->sendMessage(kickMsg);
+}
+
+void Client::clientModeCommand(const std::string &args, Server *server) {
+    
+    std::vector<std::string> arguments = getArgsVector(args);
+    
+    Channel *channel = server->getServerChannels().find(arguments[0])->second;
+    if (!channel) {
+        std::string errorMsg = "Error: Channel " + arguments[0] + " does not exist.";
+        sendMessage(errorMsg);
+        return;
+    }
+
+    if (!channel->isOperator(this)) {
+        std::string errorMsg = "Error: You are not an operator of channel " + channel->getChannelName() + ".";
+        sendMessage(errorMsg);
+        return;
+    }
+
+    if (arguments[1] == "+i") {
+        channel->setChannelStatus(true);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +i\r\n");
+    } else if (arguments[1] == "-i") {
+        channel->setChannelStatus(false);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -i\r\n");
+    }
 }

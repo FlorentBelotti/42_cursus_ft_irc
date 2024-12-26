@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 21:39:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/26 23:10:41 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ void Server::processClientCommand(const std::string& command, const std::string&
                 break;
             case MODE:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /MODE command with args: " << args << std::endl;
+                getClients()[user_fd]->clientModeCommand(args, this);
                 break;
             case WHO:
                 std::cout << YELLOW << "[SERVER]: " << RESET_COLOR << "Processing /WHO command with args: " << args << std::endl;
