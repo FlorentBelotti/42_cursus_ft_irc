@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 00:22:32 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:06:38 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,13 +149,33 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 
     // Join channel if it exists
     
-    if (server->getServerChannels().find(args) != server->getServerChannels().end()) {
+    std::vector <std::string> arguments = getArgsVector(args);
+    
+    std::cout << "DEBUG : Before join" << std::endl;
+    
+    if (server->getServerChannels().find(arguments[0]) != server->getServerChannels().end()) {
 
-        Channel* channel = server->getServerChannels()[args];
-        if (channel->getChannelStatus()) {
+        std::cout << "DEBUG : in join" << std::endl;
+
+        Channel* channel = server->getServerChannels()[arguments[0]];
+
+        if (channel->getChannelProtectionStatus()) {
+            if (arguments.size() < 2) {
+                std::string errorMsg = "[USAGE]: /join <channel> <password>";
+                sendMessage(errorMsg);
+                return;
+            }
+            if (channel->getChannelPassword() != arguments[1]) {
+                std::string errorMsg = "Error: Incorrect password.";
+                sendMessage(errorMsg);
+                return;
+            }
+        }
+        
+        if (channel->getChannelInviteStatus()) {
             if (channel->isInvited(this)) {
                 std::cout << getClientUsername() << " Join a restricted channel" << std::endl;
-                addClientChannel(args, channel);
+                addClientChannel(arguments[0], channel);
                 channel->addClient(this);
                 channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
             }
@@ -166,7 +186,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
             }
         } else {
             std::cout << getClientUsername() << " Join an already existing channel" << std::endl;
-            addClientChannel(args, channel);
+            addClientChannel(arguments[0], channel);
             channel->addClient(this);
             channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");   
         }
@@ -176,22 +196,24 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     
     else {
         
+        std::cout << "DEBUG : Creating new channel" << std::endl;
+        
         // Check if channel name is valid
         
-        if (args[0] != '#' && args[0] != '&') {
+        if (arguments[0][0] != '#' && arguments[0][0] != '&') {
             std::string errorMsg = "[USAGE]: Channel name must start with a '#' or '&' character.";
             sendMessage(errorMsg);
             return;
         }
-        if (!isValidName(&args[1], 9)) {
+        if (!isValidName(&arguments[0][1], 9)) {
             std::string errorMsg = "[USAGE]: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
             sendMessage(errorMsg);
             return;
         }
         std::cout << getClientUsername() << " Join a new channel" << std::endl;
-        server->addServerChannel(args, new Channel(args));
+        server->addServerChannel(arguments[0], new Channel(args));
         Channel* channel = server->getServerChannels()[args];
-        addClientChannel(args, channel);
+        addClientChannel(arguments[0], channel);
         channel->addClient(this);
         channel->addChannelOperators(this);
         channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
@@ -233,6 +255,7 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     channel->removeOperator(this);
     channel->broadcast(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
     sendMessage(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
+    
     if (!channel->hasOperator()) {
         std::cout << "closing channel" << std::endl;
         std::vector<Client*> clientsToRemove = channel->getChannelClients();
@@ -529,13 +552,18 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         sendMessage(errorMsg);
         return;
     }
-
+    
+    if (arguments.size() < 2) {
+        std::cout << "test" << std::endl;
+        return ;
+    }
+    
     if (arguments[1] == "+i") {
-        channel->setChannelStatus(true);
+        channel->setChannelInviteStatus(true);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +i\r\n");
         return;
     } else if (arguments[1] == "-i") {
-        channel->setChannelStatus(false);
+        channel->setChannelInviteStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -i\r\n");
         return;
     }
@@ -564,6 +592,21 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         }
         channel->removeOperator(targetClient);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -o " + targetClient->getClientNickname() + "\r\n");
+        return;
+    } else if (arguments[1] == "+k") {
+        if (arguments.size() < 3) {
+            std::string errorMsg = "Error: Missing password.";
+            sendMessage(errorMsg);
+            return;
+        }
+        channel->setChannelPassword(arguments[2]);
+        channel->setChannelProtectionStatus(true);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +k " + arguments[2] + "\r\n");
+        return;
+    } else if (arguments[1] == "-k") {
+        channel->setChannelPassword("");
+        channel->setChannelProtectionStatus(false);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -k\r\n");
         return;
     }
 }

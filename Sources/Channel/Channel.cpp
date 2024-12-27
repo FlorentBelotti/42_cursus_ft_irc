@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 23:51:02 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 14:48:54 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,14 +47,30 @@ std::vector<Client*> Channel::getChannelOperators() const {
     return _channelOperators;
 }
 
-bool Channel::getChannelStatus() const {
+bool Channel::getChannelInviteStatus() const {
     return _isRestricted;
+}
+
+bool Channel::getChannelProtectionStatus() const {
+    return _isProtected;
+}
+
+bool Channel::getChannelLimitationStatus() const {
+    return _isLimited;
 }
 
 // Setters
 
-void Channel::setChannelStatus(bool status) {
+void Channel::setChannelInviteStatus(bool status) {
     _isRestricted = status;
+}
+
+void Channel::setChannelProtectionStatus(bool status) {
+    _isProtected = status;
+}
+
+void Channel::setChannelLimitationStatus(bool status) {
+    _isLimited = status;
 }
 
 void Channel::setChannelName(std::string channelName) {
