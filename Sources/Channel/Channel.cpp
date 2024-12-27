@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:17:37 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:58:07 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,10 @@ bool Channel::getChannelLimitationStatus() const {
     return _isLimited;
 }
 
+bool Channel::getChannelTopicProtectionStatus() const {
+    return _isTopicProtected;
+}
+
 size_t Channel::getChannelLimit() const {
     return _channelLimit;
 }
@@ -67,6 +71,10 @@ size_t Channel::getChannelLimit() const {
 
 void Channel::setChannelInviteStatus(bool status) {
     _isRestricted = status;
+}
+
+void Channel::setChannelTopicProtectionStatus(bool status) {
+    _isTopicProtected = status;
 }
 
 void Channel::setChannelProtectionStatus(bool status) {

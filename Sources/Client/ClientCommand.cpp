@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:29:55 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 17:48:49 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -358,20 +358,8 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
         return;
     }
     
-    // Check command arguments
-    
     std::vector<std::string> arguments = getArgsVector(args);
-
-    if (arguments.size() < 2) {
-        std::string errorMsg = "[USAGE]: /topic <channel> <topic>";
-        sendMessage(errorMsg);
-        return;
-    }
-
     std::string channelName = arguments[0];
-    std::string topic = args.substr(channelName.length() + 1); // Extraire le topic
-
-    // Check if channel exists
     
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
@@ -379,21 +367,36 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
         sendMessage(errorMsg);
         return;
     }
+    
+    Channel* channel = it->second;
+    if (arguments.size() == 1) {
+        std::string printTopic = "[TOPIC]:" + channel->getChannelTopic();
+        sendMessage(printTopic);
+        return;
+    }
+    
+    std::string topic = &arguments[1][1];
 
+    // Check command arguments
+    
+    if (arguments.size() < 2) {
+        std::string printTopic = "[TOPIC]:" + channel->getChannelTopic();
+        sendMessage(printTopic);
+        return;
+    }
+
+    if (channel->getChannelTopicProtectionStatus()) {
+        if (!channel->isOperator(this)) {
+            std::string errorMsg = "[USAGE]: Command only available for operators.";
+            sendMessage(errorMsg);
+            return;  
+        }
+    }
+    
     // Check if topic name is valid
 
     if (topic.length() > 255) {
         std::string errorMsg = "[ERROR]: Topic must be 255 characters max.";
-        sendMessage(errorMsg);
-        return;
-    }
-
-    // Check if client is an operator
-    
-    Channel* channel = it->second;
-    
-    if (!channel->isOperator(this)) {
-        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
     }
@@ -549,15 +552,14 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         return;
     }
 
+    if (arguments.size() < 2) {
+        return ;
+    }
+
     if (!channel->isOperator(this)) {
         std::string errorMsg = "[ERROR]: You are not an operator of channel " + channel->getChannelName() + ".";
         sendMessage(errorMsg);
         return;
-    }
-    
-    if (arguments.size() < 2) {
-        std::cout << "test" << std::endl;
-        return ;
     }
     
     if (arguments[1] == "+i") {
@@ -636,6 +638,16 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     } else if (arguments[1] == "-l") {
         channel->setChannelLimitationStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -l\r\n");
+        return;
+    }
+
+    else if (arguments[1] == "+t") {
+        channel->setChannelTopicProtectionStatus(true);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +t\r\n");
+        return;
+    } else if (arguments[1] == "-t") {
+        channel->setChannelTopicProtectionStatus(false);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -t\r\n");
         return;
     }
 }

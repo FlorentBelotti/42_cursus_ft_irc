@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:17:23 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:58:17 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Channel {
         bool                    _isRestricted;
         bool                    _isLimited;
         bool                    _isProtected;
+        bool                    _isTopicProtected;
     
     public:
     
@@ -55,9 +56,9 @@ class Channel {
         bool                    getChannelInviteStatus() const;
         bool                    getChannelProtectionStatus() const;
         bool                    getChannelLimitationStatus() const;
+        bool                    getChannelTopicProtectionStatus() const;
         size_t                  getChannelLimit() const;
 
-        
     // Setters
     
         void setChannelName(std::string channelName);
@@ -66,6 +67,7 @@ class Channel {
         void setChannelInviteStatus(bool status);
         void setChannelProtectionStatus(bool status);
         void setChannelLimitationStatus(bool status);
+        void setChannelTopicProtectionStatus(bool status);
         void setChannelLimit(size_t limit);
         void addChannelOperators(Client *client);
         void removeOperator(Client *client);
