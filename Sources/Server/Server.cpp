@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 21:41:54 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 18:15:29 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,4 +222,14 @@ Client *Server::getClientByNickname(std::string const &nickname) {
         }
     }
     return NULL;
+}
+
+// Methods
+
+Channel *Server::getChannelByName(std::string const &channelName) {
+    std::map<std::string, Channel *>::iterator it = getServerChannels().find(channelName);
+    if (it == getServerChannels().end()) {
+        return NULL;
+    }
+    return it->second;
 }

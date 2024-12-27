@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 17:48:49 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 18:45:41 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,10 +130,6 @@ void Client::clientUserCommand(const std::string &args) {
     setClientRealname(argsVector[3]);
     setClientPswdTries(0);
     std::string successMsg = "[COMMAND]: Client infos updated\n";
-    // successMsg += "Username: " + getClientUsername() + "\n";
-    // successMsg += "Hostname: " + getClientHostname() + "\n";
-    // successMsg += "Servername: " + getClientServername() + "\n";
-    // successMsg += "Realname: " + getClientRealname() + "\n";
     std::cout << GREEN << successMsg << RESET_COLOR << std::endl;
 }
 
@@ -361,29 +357,28 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     std::vector<std::string> arguments = getArgsVector(args);
     std::string channelName = arguments[0];
     
-    std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
-    if (it == server->getServerChannels().end()) {
+    Channel* channel = server->getChannelByName(channelName);
+    if (!channel) {
         std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
     
-    Channel* channel = it->second;
     if (arguments.size() == 1) {
-        std::string printTopic = "[TOPIC]:" + channel->getChannelTopic();
-        sendMessage(printTopic);
+        channel->userBroadcast(":" + getClientNickname() + " NOTICE " + channel->getChannelName() + " :Topic of " + channel->getChannelName() + " is " + channel->getChannelTopic() + "\r\n", this);
         return;
     }
     
     std::string topic = &arguments[1][1];
 
-    // Check command arguments
+    // // Check command arguments
     
-    if (arguments.size() < 2) {
-        std::string printTopic = "[TOPIC]:" + channel->getChannelTopic();
-        sendMessage(printTopic);
-        return;
-    }
+    // if (arguments.size() < 2) {
+    //     channel->userBroadcast(":" + getClientNickname() + " TOPIC " + channel->getChannelName() + " :" + topic + "\r\n", this);
+    //     // std::string printTopic = "[TOPIC]:" + channel->getChannelTopic();
+    //     // sendMessage(printTopic);
+    //     return;
+    // }
 
     if (channel->getChannelTopicProtectionStatus()) {
         if (!channel->isOperator(this)) {
@@ -431,15 +426,13 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     std::string channelName = arguments[1];
 
     // Check if channel exists
-    
-    std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
-    if (it == server->getServerChannels().end()) {
+
+    Channel* channel = server->getChannelByName(channelName);
+    if (!channel) {
         std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
-
-    Channel* channel = it->second;
 
     // Check if client is an operator
     
@@ -476,8 +469,6 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     }
     
     std::vector<std::string> arguments = getArgsVector(args);
-
-    // Check command arguments
     
     if (arguments.size() < 3) {
         std::string errorMsg = "[USAGE]: /kick <nickname> <channel> <reason>";
@@ -485,11 +476,8 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         return;
     }
 
-
     std::string channelName = arguments[0];
     std::string nickname = arguments[1];
-    std::cout << RESET_COLOR << "nick: " << nickname << std::endl;
-    std::cout << RESET_COLOR << "chan: " << channelName << std::endl;
     std::string reason;
     for (std::vector<std::string>::size_type i = 2; i < arguments.size(); ++i) {
         if (i > 2)
@@ -499,15 +487,12 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     // Check if channel exists
 
-    std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
-    if (it == server->getServerChannels().end()) {
-        std::string errorMsg = "[USAGE]: Channel " + channelName + " does not exist.";
+    Channel* channel = server->getChannelByName(channelName);
+    if (!channel) {
+        std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
-
-
-    Channel* channel = it->second;
     
     // Check if client is an operator
     
@@ -545,7 +530,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     
     std::vector<std::string> arguments = getArgsVector(args);
     
-    Channel *channel = server->getServerChannels().find(arguments[0])->second;
+    Channel* channel = server->getChannelByName(arguments[0]);
     if (!channel) {
         std::string errorMsg = "[ERROR]: Channel " + arguments[0] + " does not exist.";
         sendMessage(errorMsg);

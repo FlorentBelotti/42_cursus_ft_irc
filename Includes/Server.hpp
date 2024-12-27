@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 21:41:32 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 18:14:51 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,10 @@ class Server {
     // Dashboard
         static void *startDashboard(void *arg);
         void        printDashboard() const;
+
+    // Methods
+
+    Channel *getChannelByName(std::string const &channelName);
 };
 
 #endif

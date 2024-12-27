@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:58:07 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 18:22:01 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,14 @@ void Channel::broadcast(std::string message) {
     for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
             std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Sending message to " << (*it)->getClientNickname() << std::endl;
             (*it)->sendMessage(message);
+    }
+}
+
+void Channel::userBroadcast(std::string message, Client *sender) {
+    for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++) {
+        if (*it == sender) {
+            (*it)->sendMessage(message);
+        }
     }
 }
 

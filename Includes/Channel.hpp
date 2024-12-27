@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:58:17 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 18:21:08 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ class Channel {
         void addClient(Client *client);
         void removeClient(Client *client);
         void restrictedBroadcast(std::string message, Client *sender);
+        void userBroadcast(std::string message, Client *sender);
         void broadcast(std::string message);
         void sendFileToChannel(std::string message, Client *sender);
         void sendInviteToChannel(Client *client);
