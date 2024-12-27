@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:06:38 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:21:48 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,6 @@ void Client::clientNicknameCommand(const std::string &args) {
 
     if (args.empty() || args.find(' ') != std::string::npos) {
         std::string errorMsg = "[USAGE]: /nickname <nickname>";
-        std::cout << "not valid" << std::endl;
         sendMessage(errorMsg);
         return;
     }
@@ -108,7 +107,6 @@ void Client::clientNicknameCommand(const std::string &args) {
     if (!isValidName(args, 9)) {
         std::string errorMsg = "[USAGE]: Nickname must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
         sendMessage(errorMsg);
-        std::cout << "not valid" << std::endl;
         return;
     }
 
@@ -142,7 +140,7 @@ void Client::clientUserCommand(const std::string &args) {
 void Client::clientJoinCommand(const std::string &args, Server *server) {
     
     if (!_isLogged) {
-        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
         sendMessage(errorMsg);
         return;
     }
@@ -151,11 +149,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     
     std::vector <std::string> arguments = getArgsVector(args);
     
-    std::cout << "DEBUG : Before join" << std::endl;
-    
     if (server->getServerChannels().find(arguments[0]) != server->getServerChannels().end()) {
-
-        std::cout << "DEBUG : in join" << std::endl;
 
         Channel* channel = server->getServerChannels()[arguments[0]];
 
@@ -166,7 +160,15 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
                 return;
             }
             if (channel->getChannelPassword() != arguments[1]) {
-                std::string errorMsg = "Error: Incorrect password.";
+                std::string errorMsg = "[ERROR]: Incorrect password.";
+                sendMessage(errorMsg);
+                return;
+            }
+        }
+
+        if (channel->getChannelLimitationStatus()) {
+            if (channel->getChannelClients().size() >= channel->getChannelLimit()) {
+                std::string errorMsg = "[ERROR]: Channel is full.";
                 sendMessage(errorMsg);
                 return;
             }
@@ -180,7 +182,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
                 channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
             }
             else {
-                std::string errorMsg = "Error: You are not invited to " + channel->getChannelName() + ".";
+                std::string errorMsg = "[ERROR]: You are not invited to " + channel->getChannelName() + ".";
                 sendMessage(errorMsg);
                 return;
             }
@@ -593,7 +595,9 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         channel->removeOperator(targetClient);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -o " + targetClient->getClientNickname() + "\r\n");
         return;
-    } else if (arguments[1] == "+k") {
+    } 
+    
+    else if (arguments[1] == "+k") {
         if (arguments.size() < 3) {
             std::string errorMsg = "Error: Missing password.";
             sendMessage(errorMsg);
@@ -607,6 +611,37 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         channel->setChannelPassword("");
         channel->setChannelProtectionStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -k\r\n");
+        return;
+    }
+
+    else if (arguments[1] == "+l") {
+
+        std::cout << "debug 1" << std::endl;
+        
+        if (arguments.size() < 3) {
+            std::string errorMsg = "Error: Missing limit.";
+            sendMessage(errorMsg);
+            return;
+        }
+
+        std::cout << "debug 2" << std::endl;
+
+        int limit = std::atoi(arguments[2].c_str());
+        if (limit < 0 || limit > 10) {
+            std::string errorMsg = "Error: Limit must be between 0 and 10.";
+            sendMessage(errorMsg);
+            return;
+        }
+
+        std::cout << "debug 3" << std::endl;
+
+        channel->setChannelLimitationStatus(true);
+        channel->setChannelLimit(static_cast<size_t>(limit));
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +l " + arguments[2] + "\r\n");
+        return;
+    } else if (arguments[1] == "-l") {
+        channel->setChannelLimitationStatus(false);
+        sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -l\r\n");
         return;
     }
 }

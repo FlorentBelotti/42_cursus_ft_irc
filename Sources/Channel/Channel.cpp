@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 14:48:54 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:17:37 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,10 @@ bool Channel::getChannelLimitationStatus() const {
     return _isLimited;
 }
 
+size_t Channel::getChannelLimit() const {
+    return _channelLimit;
+}
+
 // Setters
 
 void Channel::setChannelInviteStatus(bool status) {
@@ -83,6 +87,10 @@ void Channel::setChannelTopic(std::string channelTopic) {
 
 void Channel::setChannelPassword(std::string channelPassword) {
     _channelPassword = channelPassword;
+}
+
+void Channel::setChannelLimit(size_t limit) {
+    _channelLimit = limit;
 }
 
 void Channel::addChannelOperators(Client *client) {

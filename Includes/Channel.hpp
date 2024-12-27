@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 14:49:01 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:17:23 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class Channel {
         std::string             _channelName;
         std::string             _channelTopic;
         std::string             _channelPassword;
+        int                     _channelLimit;
         std::vector<Client*>    _channelClients;
         std::vector<Client*>    _channelOperators;
         std::vector<Client*>    _channelInvited;
@@ -54,6 +55,7 @@ class Channel {
         bool                    getChannelInviteStatus() const;
         bool                    getChannelProtectionStatus() const;
         bool                    getChannelLimitationStatus() const;
+        size_t                  getChannelLimit() const;
 
         
     // Setters
@@ -64,6 +66,7 @@ class Channel {
         void setChannelInviteStatus(bool status);
         void setChannelProtectionStatus(bool status);
         void setChannelLimitationStatus(bool status);
+        void setChannelLimit(size_t limit);
         void addChannelOperators(Client *client);
         void removeOperator(Client *client);
         
