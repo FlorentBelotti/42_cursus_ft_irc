@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 15:21:48 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/27 15:29:55 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
     // Check args
     
     if (_isLogged) {
-        std::string errorMsg = "Error: You are already logged in.";
+        std::string errorMsg = "[ERROR]: You are already logged in.";
         sendMessage(errorMsg);
         return;
     }
@@ -65,7 +65,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
     }
     
     if (getClientPswdTries() > 3) {
-        std::string errorMsg = "Error: Too many password tries.";
+        std::string errorMsg = "[ERROR]: Too many password tries.";
         sendMessage(errorMsg);
         close(getClientFd());
         epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
@@ -76,7 +76,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
 
     std::string correctPassword = server->getServerPswd();
     if (args != correctPassword) {
-        std::string errorMsg = "Error: Incorrect password.";
+        std::string errorMsg = "[ERROR]: Incorrect password.";
         sendMessage(errorMsg);
         addClientPswdTry();
         _isLogged = false;
@@ -93,7 +93,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
 void Client::clientNicknameCommand(const std::string &args) {
     
     // if (!_isLogged) {
-    //     std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+    //     std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
     //     sendMessage(errorMsg);
     //     return;
     // }
@@ -226,7 +226,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 void Client::clientPartCommand(const std::string &args, Server *server) {
 
     if (!_isLogged) {
-        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
         sendMessage(errorMsg);
         return;
     }
@@ -274,7 +274,7 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     
 
     if (!_isLogged) {
-        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
         sendMessage(errorMsg);
         return;
     }
@@ -353,7 +353,7 @@ void Client::clientQuitCommand(const std::string &args, Server *server) {
 void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     if (!_isLogged) {
-        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
         sendMessage(errorMsg);
         return;
     }
@@ -375,7 +375,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
-        std::string errorMsg = "Error: Channel " + channelName + " does not exist.";
+        std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
@@ -383,7 +383,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     // Check if topic name is valid
 
     if (topic.length() > 255) {
-        std::string errorMsg = "Error: Topic must be 255 characters max.";
+        std::string errorMsg = "[ERROR]: Topic must be 255 characters max.";
         sendMessage(errorMsg);
         return;
     }
@@ -393,7 +393,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     Channel* channel = it->second;
     
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
+        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
     }
@@ -409,7 +409,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
 void Client::clientInviteCommand(const std::string &args, Server *server) {
 
     if (!_isLogged) {
-        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
         sendMessage(errorMsg);
         return;
     }
@@ -431,7 +431,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     
     std::map<std::string, Channel*>::iterator it = server->getServerChannels().find(channelName);
     if (it == server->getServerChannels().end()) {
-        std::string errorMsg = "Error: Channel " + channelName + " does not exist.";
+        std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
@@ -441,7 +441,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     // Check if client is an operator
     
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
+        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
     }
@@ -450,7 +450,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 
     Client* invitedClient = server->getClientByNickname(nickname);
     if (!invitedClient) {
-        std::string errorMsg = "Error: Client " + nickname + " does not exist.";
+        std::string errorMsg = "[ERROR]: Client " + nickname + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
@@ -467,7 +467,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 void Client::clientKickCommand(const std::string &args, Server *server) {
 
     if (!_isLogged) {
-        std::string errorMsg = "Error: You are not logged in. Please set your password first.";
+        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
         sendMessage(errorMsg);
         return;
     }
@@ -509,7 +509,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     // Check if client is an operator
     
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "Error: You are not an operator of channel " + channelName + ".";
+        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channelName + ".";
         sendMessage(errorMsg);
         return;
     }
@@ -544,13 +544,13 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     
     Channel *channel = server->getServerChannels().find(arguments[0])->second;
     if (!channel) {
-        std::string errorMsg = "Error: Channel " + arguments[0] + " does not exist.";
+        std::string errorMsg = "[ERROR]: Channel " + arguments[0] + " does not exist.";
         sendMessage(errorMsg);
         return;
     }
 
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "Error: You are not an operator of channel " + channel->getChannelName() + ".";
+        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channel->getChannelName() + ".";
         sendMessage(errorMsg);
         return;
     }
@@ -573,12 +573,12 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     if (arguments[1] == "+o") {
         Client *targetClient = server->getClientByNickname(arguments[2]);
         if (!targetClient) {
-            std::string errorMsg = "Error: Client " + arguments[2] + " does not exist.";
+            std::string errorMsg = "[ERROR]: Client " + arguments[2] + " does not exist.";
             sendMessage(errorMsg);
             return;
         }
         if (channel->isOperator(targetClient)) {
-            std::string errorMsg = "Error: Client " + arguments[2] + " is already an operator of " + channel->getChannelName() + ".";
+            std::string errorMsg = "[ERROR]: Client " + arguments[2] + " is already an operator of " + channel->getChannelName() + ".";
             sendMessage(errorMsg);
             return;
         }
@@ -588,7 +588,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     } else if (arguments[1] == "-o") {
         Client *targetClient = server->getClientByNickname(arguments[2]);
         if (!targetClient) {
-            std::string errorMsg = "Error: Client " + arguments[2] + " does not exist.";
+            std::string errorMsg = "[ERROR]: Client " + arguments[2] + " does not exist.";
             sendMessage(errorMsg);
             return;
         }
@@ -599,7 +599,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     
     else if (arguments[1] == "+k") {
         if (arguments.size() < 3) {
-            std::string errorMsg = "Error: Missing password.";
+            std::string errorMsg = "[ERROR]; Missing password.";
             sendMessage(errorMsg);
             return;
         }
@@ -615,25 +615,19 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     }
 
     else if (arguments[1] == "+l") {
-
-        std::cout << "debug 1" << std::endl;
         
         if (arguments.size() < 3) {
-            std::string errorMsg = "Error: Missing limit.";
+            std::string errorMsg = "[ERROR]: Missing limit.";
             sendMessage(errorMsg);
             return;
         }
-
-        std::cout << "debug 2" << std::endl;
 
         int limit = std::atoi(arguments[2].c_str());
         if (limit < 0 || limit > 10) {
-            std::string errorMsg = "Error: Limit must be between 0 and 10.";
+            std::string errorMsg = "[ERROR]: Limit must be between 0 and 10.";
             sendMessage(errorMsg);
             return;
         }
-
-        std::cout << "debug 3" << std::endl;
 
         channel->setChannelLimitationStatus(true);
         channel->setChannelLimit(static_cast<size_t>(limit));
