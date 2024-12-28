@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 18:45:41 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/28 23:21:58 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
         sendMessage(errorMsg);
         close(getClientFd());
         epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
-        server->getClients().erase(getClientFd());  
+        server->getClients().erase(getClientFd());
         delete this;
         return;
     }
@@ -91,12 +91,6 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
 }
 
 void Client::clientNicknameCommand(const std::string &args) {
-    
-    // if (!_isLogged) {
-    //     std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-    //     sendMessage(errorMsg);
-    //     return;
-    // }
 
     if (args.empty() || args.find(' ') != std::string::npos) {
         std::string errorMsg = "[USAGE]: /nickname <nickname>";
@@ -528,8 +522,15 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
 void Client::clientModeCommand(const std::string &args, Server *server) {
     
+    std::cout << "DEBUG : MODE command 0" << std::endl;
+
     std::vector<std::string> arguments = getArgsVector(args);
-    
+    if (arguments.size() == 0) {
+        std::string errorMsg = "[USAGE]: /mode <channel> <mode> <nickname>";
+        sendMessage(errorMsg);
+        return;
+    }
+
     Channel* channel = server->getChannelByName(arguments[0]);
     if (!channel) {
         std::string errorMsg = "[ERROR]: Channel " + arguments[0] + " does not exist.";
