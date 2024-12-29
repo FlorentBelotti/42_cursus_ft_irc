@@ -6,19 +6,11 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/28 23:21:58 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/29 21:01:42 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Client.hpp"
-
-// Debug
-
-void printClientNicknames(const std::vector<Client*>& clients) {
-    for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); ++it) {
-        std::cout << (*it)->getClientNickname() << std::endl;
-    }
-}
 
 // Commands utils
 
@@ -49,24 +41,19 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
 // Commands
 
 void Client::clientPassCommand(const std::string &args, Server *server) {
-    
-    // Check args
-    
-    if (_isLogged) {
-        std::string errorMsg = "[ERROR]: You are already logged in.";
-        sendMessage(errorMsg);
-        return;
-    }
 
-    if (args.empty() || args.find(' ') != std::string::npos) {
-        std::string errorMsg = "[USAGE]: /pass <password>";
-        sendMessage(errorMsg);
+    std::vector<std::string> arguments = getArgsVector(args);
+    
+    if (getClientLogStatus()) {
+        sendErrorMessage("You are already logged in.");
         return;
     }
-    
+    if (arguments.size() != 1) {
+        sendErrorMessage("Usage: /pass <password>");
+        return;
+    }
     if (getClientPswdTries() > 3) {
-        std::string errorMsg = "[ERROR]: Too many password tries.";
-        sendMessage(errorMsg);
+        sendErrorMessage("You have reached the maximum number of password tries.");
         close(getClientFd());
         epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
         server->getClients().erase(getClientFd());
@@ -74,36 +61,34 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
         return;
     }
 
-    std::string correctPassword = server->getServerPswd();
-    if (args != correctPassword) {
-        std::string errorMsg = "[ERROR]: Incorrect password.";
-        sendMessage(errorMsg);
+    if (arguments[0] != server->getServerPswd()) {
+        sendErrorMessage("Incorrect password.");
         addClientPswdTry();
-        _isLogged = false;
+        setClientLogStatus(false);
         return;
     } else {
-        setClientPassword(args);
-        _isLogged = true;
-        std::string successMsg = "You are now successefully logged in.";
-        sendMessage(successMsg);
+        setClientPassword(arguments[0]);
+        setClientLogStatus(true);
+        sendMessage("You are now successefully logged in.");
         std::cout << GREEN << "[COMMAND]: Password set." << RESET_COLOR << std::endl;   
     }
 }
 
 void Client::clientNicknameCommand(const std::string &args) {
 
-    if (args.empty() || args.find(' ') != std::string::npos) {
-        std::string errorMsg = "[USAGE]: /nickname <nickname>";
-        sendMessage(errorMsg);
+    std::vector<std::string> arguments = getArgsVector(args);
+
+    if (arguments.size() != 1) {
+        sendErrorMessage("Usage: /nickname <nickname>");
         return;
     }
 
-    if (!isValidName(args, 9)) {
-        std::string errorMsg = "[USAGE]: Nickname must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
-        sendMessage(errorMsg);
+    if (!isValidName(arguments[0], 9)) {
+        sendErrorMessage("Usage: Nickname must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.");
         return;
     }
 
+    sendMessage(":" + getClientNickname() + " NICK " + arguments[0] + "\r\n");
     setClientNickname(args);
     std::cout << GREEN << "[COMMAND]: Nickname changed to " + getClientNickname() << RESET_COLOR << std::endl;
 }
@@ -113,8 +98,7 @@ void Client::clientUserCommand(const std::string &args) {
     std::vector<std::string> argsVector = getArgsVector(args);
     
     if (argsVector.size() != 4) {
-        std::string errorMsg = "[USAGE]: /username <username> <hostname> <servername> <realname>";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: /username <username> <hostname> <servername> <realname>");
         return;
     }
 
@@ -129,13 +113,10 @@ void Client::clientUserCommand(const std::string &args) {
 
 void Client::clientJoinCommand(const std::string &args, Server *server) {
     
-    if (!_isLogged) {
-        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-        sendMessage(errorMsg);
+    if (!getClientLogStatus()) {
+        sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
-
-    // Join channel if it exists
     
     std::vector <std::string> arguments = getArgsVector(args);
     
@@ -145,64 +126,51 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 
         if (channel->getChannelProtectionStatus()) {
             if (arguments.size() < 2) {
-                std::string errorMsg = "[USAGE]: /join <channel> <password>";
-                sendMessage(errorMsg);
+                sendErrorMessage("Usage: /join <channel> <password>");
                 return;
             }
             if (channel->getChannelPassword() != arguments[1]) {
-                std::string errorMsg = "[ERROR]: Incorrect password.";
-                sendMessage(errorMsg);
+                sendErrorMessage("Incorrect password.");
                 return;
             }
         }
 
         if (channel->getChannelLimitationStatus()) {
             if (channel->getChannelClients().size() >= channel->getChannelLimit()) {
-                std::string errorMsg = "[ERROR]: Channel is full.";
-                sendMessage(errorMsg);
+                sendErrorMessage("Channel is full.");
                 return;
             }
         }
         
         if (channel->getChannelInviteStatus()) {
             if (channel->isInvited(this)) {
-                std::cout << getClientUsername() << " Join a restricted channel" << std::endl;
                 addClientChannel(arguments[0], channel);
                 channel->addClient(this);
                 channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
             }
             else {
-                std::string errorMsg = "[ERROR]: You are not invited to " + channel->getChannelName() + ".";
-                sendMessage(errorMsg);
+                sendErrorMessage("You are not invited to " + channel->getChannelName() + ".");
                 return;
             }
         } else {
-            std::cout << getClientUsername() << " Join an already existing channel" << std::endl;
             addClientChannel(arguments[0], channel);
             channel->addClient(this);
             channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");   
         }
     }
     
-    // Create Channel if it doesn't exist
-    
     else {
         
-        std::cout << "DEBUG : Creating new channel" << std::endl;
         
-        // Check if channel name is valid
         
         if (arguments[0][0] != '#' && arguments[0][0] != '&') {
-            std::string errorMsg = "[USAGE]: Channel name must start with a '#' or '&' character.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Usage: Channel name must start with a '#' or '&' character.");
             return;
         }
         if (!isValidName(&arguments[0][1], 9)) {
-            std::string errorMsg = "[USAGE]: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Usage: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.");
             return;
         }
-        std::cout << getClientUsername() << " Join a new channel" << std::endl;
         server->addServerChannel(arguments[0], new Channel(args));
         Channel* channel = server->getServerChannels()[args];
         addClientChannel(arguments[0], channel);
@@ -211,13 +179,14 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +o " + getClientNickname() + "\r\n");
     }
+
+    std::cout << GREEN << "[COMMAND]: " << getClientNickname() << " joined " << arguments[0] << RESET_COLOR << std::endl;
 }
 
 void Client::clientPartCommand(const std::string &args, Server *server) {
 
-    if (!_isLogged) {
-        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-        sendMessage(errorMsg);
+    if (!getClientLogStatus()) {
+        sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
     
@@ -225,19 +194,16 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     
     size_t spacePos = args.find(' ');
     if (spacePos == std::string::npos) {
-        std::string errorMsg = "[USAGE]: /part <#channel>";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: /part <#channel>");
         return;
     }
     std::string channelName = args.substr(0, spacePos);
     if (channelName[0] != '#' && channelName[0] != '&') {
-        std::string errorMsg = "[USAGE]: Channel name must start with a '#' or '&' character.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: Channel name must start with a '#' or '&' character.");
         return;
     }
     if (server->getServerChannels().find(channelName) == server->getServerChannels().end()) {
-        std::string errorMsg = "[USAGE]: Channel doesn't exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Channel doesn't exist.");
         return;
     }
     
@@ -249,7 +215,6 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     sendMessage(":" + getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
     
     if (!channel->hasOperator()) {
-        std::cout << "closing channel" << std::endl;
         std::vector<Client*> clientsToRemove = channel->getChannelClients();
         for (std::vector<Client*>::iterator it = clientsToRemove.begin(); it != clientsToRemove.end(); ++it) {
             channel->removeClient(*it);
@@ -262,25 +227,20 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
 
 void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     
-
-    if (!_isLogged) {
-        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-        sendMessage(errorMsg);
+    if (!getClientLogStatus()) {
+        sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
-    
-    // Check command arguments
     
     std::vector<std::string> arguments = getArgsVector(args);
     
     if (arguments.size() < 2) {
-        std::string errorMsg = "[USAGE]: PRIVMSG command requires a channel and a message.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: /privmsg <target> <message>");
         return;
     }
 
     std::string target = arguments[0];
-    std::string message = args.substr(target.length() + 1); // Extraire le message
+    std::string message = args.substr(target.length() + 1);
     if (!message.empty() && message[0] == ':') {
         message = message.substr(1);
     }
@@ -293,16 +253,14 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
         if (std::find(clients.begin(), clients.end(), this) != clients.end()) {
             channel->restrictedBroadcast(":" + getClientNickname() + " PRIVMSG " + channel->getChannelName() + " :" + message + "\r\n", this);
         } else {
-            std::string errorMsg = "[USAGE]: You are not registered on " + target + ".";
-            sendMessage(errorMsg);
+            sendErrorMessage("You are not registered on " + target + ".");
             return ;
         }
     }
     else {
         Client *targetClient = server->getClientByNickname(target);
         if (!targetClient) {
-            std::string errorMsg = "[USAGE]: Client " + target + " does not exist.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Client " + target + " does not exist.");
             return;
         }
         targetClient->sendMessage(":" + getClientNickname() + " PRIVMSG " + target + " :" + message + "\r\n");
@@ -311,40 +269,27 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
 
 void Client::clientQuitCommand(const std::string &args, Server *server) {
     
-    std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Client " << getClientNickname() << " has been disconnected." << std::endl;
+    std::cout << GREEN << "[COMMAND]:" << RESET_COLOR << " Client " << getClientNickname() << " has been disconnected." << std::endl;
     
     sendMessage(args);
-    
-    // close file_descriptor
-    
     close(getClientFd());
-
-    // Delete client from epoll    
-
     epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
-
-    // Delete client from channel(s)
     
     std::map<std::string, Channel*> &channels = server->getServerChannels();
-    
     for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
         Channel *channel = it->second;
         channel->removeClient(this);
         channel->removeOperator(this);
-    }
-
-    // Delete client from server
+    } 
 
     server->getClients().erase(getClientFd());
-        
     delete this;
 }
 
 void Client::clientTopicCommand(const std::string &args, Server *server) {
     
-    if (!_isLogged) {
-        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-        sendMessage(errorMsg);
+    if (!getClientLogStatus()) {
+        sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
     
@@ -353,8 +298,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     Channel* channel = server->getChannelByName(channelName);
     if (!channel) {
-        std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Channel " + channelName + " does not exist.");
         return;
     }
     
@@ -365,32 +309,17 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     std::string topic = &arguments[1][1];
 
-    // // Check command arguments
-    
-    // if (arguments.size() < 2) {
-    //     channel->userBroadcast(":" + getClientNickname() + " TOPIC " + channel->getChannelName() + " :" + topic + "\r\n", this);
-    //     // std::string printTopic = "[TOPIC]:" + channel->getChannelTopic();
-    //     // sendMessage(printTopic);
-    //     return;
-    // }
-
     if (channel->getChannelTopicProtectionStatus()) {
         if (!channel->isOperator(this)) {
-            std::string errorMsg = "[USAGE]: Command only available for operators.";
-            sendMessage(errorMsg);
+            channel->userBroadcast("Command only available for operators.", this);
             return;  
         }
     }
-    
-    // Check if topic name is valid
 
     if (topic.length() > 255) {
-        std::string errorMsg = "[ERROR]: Topic must be 255 characters max.";
-        sendMessage(errorMsg);
+        channel->userBroadcast("Topic must be 255 characters max.", this);
         return;
     }
-
-    // Set topic
     
     channel->setChannelTopic(topic);
     std::string topicMsg = " :" + topic;
@@ -400,48 +329,35 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
 
 void Client::clientInviteCommand(const std::string &args, Server *server) {
 
-    if (!_isLogged) {
-        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-        sendMessage(errorMsg);
+    if (!getClientLogStatus()) {
+        sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
     
     std::vector<std::string> arguments = getArgsVector(args);
-
-    // Check command arguments
     
     if (arguments.size() != 2) {
-        std::string errorMsg = "[USAGE]: /invite <nickname> <channel>";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: /invite <nickname> <channel>");
         return;
     }
 
     std::string nickname = arguments[0];
     std::string channelName = arguments[1];
 
-    // Check if channel exists
-
     Channel* channel = server->getChannelByName(channelName);
     if (!channel) {
-        std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Channel " + channelName + " does not exist.");
         return;
     }
-
-    // Check if client is an operator
     
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channelName + ".";
-        sendMessage(errorMsg);
+        sendErrorMessage("You are not an operator of channel " + channelName + ".");
         return;
     }
-
-    // Check if client exists
 
     Client* invitedClient = server->getClientByNickname(nickname);
     if (!invitedClient) {
-        std::string errorMsg = "[ERROR]: Client " + nickname + " does not exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Client " + nickname + " does not exist.");
         return;
     }
 
@@ -457,16 +373,14 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 void Client::clientKickCommand(const std::string &args, Server *server) {
 
     if (!_isLogged) {
-        std::string errorMsg = "[ERROR]: You are not logged in. Please set your password first.";
-        sendMessage(errorMsg);
+        sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
     
     std::vector<std::string> arguments = getArgsVector(args);
     
     if (arguments.size() < 3) {
-        std::string errorMsg = "[USAGE]: /kick <nickname> <channel> <reason>";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: /kick <nickname> <channel> <reason>");
         return;
     }
 
@@ -483,16 +397,14 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     Channel* channel = server->getChannelByName(channelName);
     if (!channel) {
-        std::string errorMsg = "[ERROR]: Channel " + channelName + " does not exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Channel " + channelName + " does not exist.");
         return;
     }
     
     // Check if client is an operator
     
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channelName + ".";
-        sendMessage(errorMsg);
+        sendErrorMessage("You are not an operator of channel " + channelName + ".");
         return;
     }
 
@@ -500,14 +412,12 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     Client* kickedClient = server->getClientByNickname(nickname);
     if (!kickedClient) {
-        std::string errorMsg = "[USAGE]: Client " + nickname + " does not exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: Client " + nickname + " does not exist.");
         return;
     }
 
     if (kickedClient == this) {
-        std::string errorMsg = "[USAGE]: You cannot kick yourself.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: You cannot kick yourself.");
         return;
     }
 
@@ -521,20 +431,16 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 }
 
 void Client::clientModeCommand(const std::string &args, Server *server) {
-    
-    std::cout << "DEBUG : MODE command 0" << std::endl;
 
     std::vector<std::string> arguments = getArgsVector(args);
     if (arguments.size() == 0) {
-        std::string errorMsg = "[USAGE]: /mode <channel> <mode> <nickname>";
-        sendMessage(errorMsg);
+        sendErrorMessage("Usage: /mode <channel> <mode> <nickname>");
         return;
     }
 
     Channel* channel = server->getChannelByName(arguments[0]);
     if (!channel) {
-        std::string errorMsg = "[ERROR]: Channel " + arguments[0] + " does not exist.";
-        sendMessage(errorMsg);
+        sendErrorMessage("Channel " + arguments[0] + " does not exist.");
         return;
     }
 
@@ -543,8 +449,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     }
 
     if (!channel->isOperator(this)) {
-        std::string errorMsg = "[ERROR]: You are not an operator of channel " + channel->getChannelName() + ".";
-        sendMessage(errorMsg);
+        sendErrorMessage("You are not an operator of channel " + channel->getChannelName() + ".");
         return;
     }
     
@@ -561,13 +466,11 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     if (arguments[1] == "+o") {
         Client *targetClient = server->getClientByNickname(arguments[2]);
         if (!targetClient) {
-            std::string errorMsg = "[ERROR]: Client " + arguments[2] + " does not exist.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Client " + arguments[2] + " does not exist.");
             return;
         }
         if (channel->isOperator(targetClient)) {
-            std::string errorMsg = "[ERROR]: Client " + arguments[2] + " is already an operator of " + channel->getChannelName() + ".";
-            sendMessage(errorMsg);
+            sendErrorMessage("Client " + arguments[2] + " is already an operator of " + channel->getChannelName() + ".");
             return;
         }
         channel->addChannelOperators(targetClient);
@@ -576,8 +479,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     } else if (arguments[1] == "-o") {
         Client *targetClient = server->getClientByNickname(arguments[2]);
         if (!targetClient) {
-            std::string errorMsg = "[ERROR]: Client " + arguments[2] + " does not exist.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Client " + arguments[2] + " does not exist.");
             return;
         }
         channel->removeOperator(targetClient);
@@ -587,8 +489,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     
     else if (arguments[1] == "+k") {
         if (arguments.size() < 3) {
-            std::string errorMsg = "[ERROR]; Missing password.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Missing password.");
             return;
         }
         channel->setChannelPassword(arguments[2]);
@@ -605,15 +506,13 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     else if (arguments[1] == "+l") {
         
         if (arguments.size() < 3) {
-            std::string errorMsg = "[ERROR]: Missing limit.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Missing limit.");
             return;
         }
 
         int limit = std::atoi(arguments[2].c_str());
         if (limit < 0 || limit > 10) {
-            std::string errorMsg = "[ERROR]: Limit must be between 0 and 10.";
-            sendMessage(errorMsg);
+            sendErrorMessage("Limit must be between 0 and 10.");
             return;
         }
 

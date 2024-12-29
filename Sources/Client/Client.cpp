@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/15 17:21:26 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 21:32:03 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/29 16:02:36 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,4 +150,9 @@ void Client::sendFile(std::string const &file) {
 
 void Client::sendInvite(Client const *client) {
     (void)client;
+}
+
+void Client::sendErrorMessage(std::string const &msg) {
+    std::string errorMsg = "[ERROR]: " + msg + "\r\n";
+    sendMessage(errorMsg);
 }

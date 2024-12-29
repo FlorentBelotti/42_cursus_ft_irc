@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/01 18:47:06 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/20 00:39:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/28 23:51:58 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,16 @@ bool Server::setSocketNonBlockingMode() {
     
     // Remove previous flag from server's socket
     
-    int sockFlags = fcntl(getServerFd(), F_GETFL, 0);
-    if (sockFlags == -1) {
-        std::cerr << RED << "[SERVER]: [ERROR]: Cannot get server socket's flag!" << RESET_COLOR << std::endl;
-        std::cerr << strerror(errno) << std::endl;
-        return false;
-    }
+    // int sockFlags = fcntl(getServerFd(), F_GETFL, 0);
+    // if (sockFlags == -1) {
+    //     std::cerr << RED << "[SERVER]: [ERROR]: Cannot get server socket's flag!" << RESET_COLOR << std::endl;
+    //     std::cerr << strerror(errno) << std::endl;
+    //     return false;
+    // }
 
     // Add non-block flag to server's socket
     
-    if (fcntl(getServerFd(), F_SETFL, sockFlags | O_NONBLOCK))
+    if (fcntl(getServerFd(), F_SETFL, O_NONBLOCK))
         return false;
     return true;
 }

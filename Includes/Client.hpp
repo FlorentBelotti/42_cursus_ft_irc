@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 16:42:49 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 22:34:47 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/29 16:02:07 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ class Client {
     // Methods
 
         void sendMessage(std::string const &msg);
+        void sendErrorMessage(std::string const &msg);
         void sendFile(std::string const &file);
         void sendInvite(Client const *client);
 };
