@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 18:21:08 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:12:37 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Channel {
         bool                    getChannelLimitationStatus() const;
         bool                    getChannelTopicProtectionStatus() const;
         size_t                  getChannelLimit() const;
+        Client*                 getBot() const;
 
     // Setters
     

@@ -6,11 +6,12 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/29 21:01:42 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:56:00 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Client.hpp"
+#include "../../Includes/Bot.hpp"
 
 // Commands utils
 
@@ -36,6 +37,13 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
         argsVector.push_back(token);
     }
     return argsVector;
+}
+
+bool isBotCommand(const std::string &cmd) {
+    if (cmd == "!hello")
+        return true;
+    else
+        return false;
 }
 
 // Commands
@@ -246,12 +254,26 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     }
 
     if (target[0] == '#') {
+        
+        std::cout << YELLOW << message << std::endl;
         Channel *channel = server->getServerChannels().find(target)->second;
         if (!channel)
             return;
+        
         std::vector<Client*> clients = channel->getChannelClients();
+        
         if (std::find(clients.begin(), clients.end(), this) != clients.end()) {
+            
             channel->restrictedBroadcast(":" + getClientNickname() + " PRIVMSG " + channel->getChannelName() + " :" + message + "\r\n", this);
+            
+            if (isBotCommand(message)) {
+                Bot *bot = server->getServerBot();
+                if (!channel->getBot()) {
+                    channel->addClient(bot);
+                    channel->broadcast(":" + bot->getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
+                }
+                bot->handleBotCommand(message, channel);
+            }
         } else {
             sendErrorMessage("You are not registered on " + target + ".");
             return ;

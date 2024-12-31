@@ -6,11 +6,12 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/01 18:47:06 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/28 23:51:58 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:48:58 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/Server.hpp"
+#include "../../Includes/Server.hpp"
+#include "../../Includes/Bot.hpp"
 
 // Socket(s) management
 
@@ -84,6 +85,21 @@ bool Server::setSocketOptions() {
     return true;
 }
 
+bool Server::createBot() {
+    struct epoll_event event;
+    event.events = EPOLLIN;
+    event.data.fd = _serverBot->getClientFd();
+
+    if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, _serverBot->getClientFd(), &event) == -1) {
+        std::cerr << "Failed to add bot to epoll" << std::endl;
+        std::cerr << strerror(errno) << std::endl;
+        closeFileDescriptors();
+        setServerStatus(false);
+        return false;
+    }
+    return true;
+}
+
 // Error management
 
 void Server::manageSocketError(int step) {
@@ -103,6 +119,9 @@ void Server::manageSocketError(int step) {
             break;
         case MANAGE_EPOLL:
             errorMsg = "[SERVER]: [ERROR]: Cannot manage epoll and events!";
+            break;
+        case MANAGE_BOT:
+            errorMsg = "[SERVER]: [ERROR]: Cannot create the bot!";
             break;
     }
     std::cerr << RED << errorMsg << RESET_COLOR << std::endl;
@@ -130,6 +149,9 @@ void Server::setupSocketAndEvents() {
                 break;
             case MANAGE_EPOLL:
                 flag = manageEpollAndEvents();
+                break;
+            case MANAGE_BOT:
+                flag = createBot();
                 break;
         }
         if (!flag) {

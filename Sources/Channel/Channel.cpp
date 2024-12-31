@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 18:22:01 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:34:09 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,15 @@ bool Channel::getChannelTopicProtectionStatus() const {
 
 size_t Channel::getChannelLimit() const {
     return _channelLimit;
+}
+
+Client* Channel::getBot() const {
+    for (std::vector<Client*>::const_iterator it = _channelClients.begin(); it != _channelClients.end(); ++it) {
+        if ((*it)->getClientBotStatus()) {
+            return *it;
+        }
+    }
+    return NULL;
 }
 
 // Setters

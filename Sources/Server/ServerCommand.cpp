@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/26 23:10:41 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:09:37 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,28 +21,20 @@ bool isCommand(const std::string &cmd) {
 
 void Server::handleMessage(std::string const &msg, int user_fd) {
 
-    // Check if the message is a command
-
+    std::cout << MAGENTA << "[Hexchat]: " << RESET_COLOR << msg << std::endl;
+    
     if (msg.empty()) {
-        send(user_fd, "Empty message", 13, 0);
+        getClients()[user_fd]->sendErrorMessage("Empty message");
         return;
     }
     
     size_t  spacePos = msg.find(' ');
     std::string command = msg.substr(0, spacePos);
-    
-    std::cout << MAGENTA << "[Hexchat]: " << RESET_COLOR << msg << std::endl;
+    // std::cout << BLUE << "[Command]: " << RESET_COLOR << command << std::endl;
 
     if (isCommand(command)) {
-        
-        // Extract command and its arguments
-
         std::string args = (spacePos != std::string::npos) ? msg.substr(spacePos + 1) : "";
-        
-        // Process command
-        
         processClientCommand(command, args, user_fd);
-
     } else {
         std::cout << "is not a command" << std::endl;
     }

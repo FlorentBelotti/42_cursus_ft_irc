@@ -6,15 +6,18 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 18:15:29 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:35:50 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Server.hpp"
+#include "../../Includes/Bot.hpp"
 
 // Constructor
 
-Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _serverStatus(false), _serverPort(port), _serverFd(-1), _epollFd(-1) {}
+Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _serverStatus(false), _serverPort(port), _serverFd(-1), _serverBot(new Bot(0, "Bot")), _epollFd(-1) {
+    getClients()[0] = _serverBot;
+}
 
 // Destructeur
 
@@ -222,6 +225,10 @@ Client *Server::getClientByNickname(std::string const &nickname) {
         }
     }
     return NULL;
+}
+
+Bot *Server::getServerBot() const {
+    return (_serverBot);
 }
 
 // Methods

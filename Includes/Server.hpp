@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/27 18:14:51 by fbelotti         ###   ########.fr       */
+/*   Updated: 2024/12/31 15:43:29 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 class Client;
 
 class Channel;
+
+class Bot;
 class Server {
     
     private:
@@ -32,6 +34,10 @@ class Server {
         int         _serverPort;
         int         _serverFd;
     
+    // Bot
+
+        Bot *_serverBot;
+
     // Epoll informations
 
         int                 _epollFd;
@@ -54,7 +60,8 @@ class Server {
             SET_NONBLOCKING,
             BIND_SOCKET,
             SET_OPTIONS,
-            MANAGE_EPOLL
+            MANAGE_EPOLL,
+            MANAGE_BOT
         };
         
     // Abstract
@@ -71,7 +78,7 @@ class Server {
     // Destructor
 
         ~Server();
-    
+
     // Socket(s) management
 
         void    setupSocketAndEvents();
@@ -79,6 +86,7 @@ class Server {
         bool    setSocketNonBlockingMode();
         bool    bindSocketToAddress();
         bool    setSocketOptions();
+        bool    createBot();
 
     // Epoll management
 
@@ -140,6 +148,7 @@ class Server {
         std::map<std::string, Channel *>    &getServerChannels();
         Client                              *getClientByNickname(std::string const &nickname);
         std::string                         getServerPswd() const;
+        Bot                                 *getServerBot() const;
 
     // Channel
 
