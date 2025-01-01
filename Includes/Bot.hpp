@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 14:18:17 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/31 15:52:46 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/01 17:25:56 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,23 @@
 #include "Server.hpp"
 
 class Bot : public Client {
-public:
+
+    public:
+
+    // Constructor
+    
     Bot(int newClientFd, std::string hostname);
-    void handleBotCommand(const std::string &message, Channel *channel);
+    
+    // Commands
+
+    enum botCommands {
+        HELLO,
+        LEAVE,
+        HELP
+    };
+
+    void                botHelloCommand(Channel *channel, Client *target);
+    void                botHelpCommand(Channel *channel);
+    void                handleBotCommand(const std::string &message, Channel *channel, Client *target, Server *server);
+    Bot::botCommands    botDefineCommand(const std::string &command);
 };

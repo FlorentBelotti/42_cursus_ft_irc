@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/31 15:56:00 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/01 17:32:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
 }
 
 bool isBotCommand(const std::string &cmd) {
-    if (cmd == "!hello")
+    if (cmd == "!hello" || cmd == "!leave" || cmd == "!help")
         return true;
     else
         return false;
@@ -268,12 +268,12 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
             
             if (isBotCommand(message)) {
                 Bot *bot = server->getServerBot();
-                if (!channel->getBot()) {
-                    channel->addClient(bot);
-                    channel->broadcast(":" + bot->getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
+                if (!channel->getBot() && message != "!leave") {
+                    bot->clientJoinCommand(channel->getChannelName(), server);
                 }
-                bot->handleBotCommand(message, channel);
+                bot->handleBotCommand(message, channel, this, server);
             }
+            
         } else {
             sendErrorMessage("You are not registered on " + target + ".");
             return ;
