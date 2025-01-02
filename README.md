@@ -12,11 +12,9 @@
 
 <ul>
     <li><a href="#introduction">Introduction</a></li>
-    <li><a href="#common-instructions">Common Instructions</a></li>
     <li><a href="#mandatory-part">Mandatory Part</a></li>
+    <li><a href="#bonus-part">Bonus Part</a></li>
     <li><a href="#code-overview">Code Overview</a></li>
-    <li><a href="#feedback">Feedback</a></li>
-    <li><a href="#organization-and-task-distribution">Organization and Task Distribution</a></li>
     <li><a href="#execution-breakdown">Execution Breakdown</a></li>
     <li><a href="#conclusion">Conclusion</a></li>
     <li><a href="#thanks">Thanks</a></li>
@@ -32,20 +30,6 @@ The IRC project is about creating a simple IRC server that can handle multiple c
 
 <div align="left">
 
-### Common Instructions![---------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
-<section id="common-instructions">
-
-<ul>
-    <li>The project must be written in C and conform to the coding norm.</li>
-    <li>Functions must handle errors gracefully without causing unexpected termination (e.g., segmentation faults).</li>
-    <li>All allocated memory must be properly freed to avoid leaks.</li>
-    <li>A Makefile must be provided to compile the project with the necessary flags: -Wall, -Wextra, and -Werror.</li>
-    <li>The Makefile should include at least the rules: <code>$(NAME)</code>, <code>all</code>, <code>clean</code>, <code>fclean</code>, and <code>re</code>.</li>
-</ul>
-</section>
-
-<div align="left">
-
 ### Mandatory Part![---------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 <section id="mandatory-part">
 
@@ -56,6 +40,16 @@ The IRC project is about creating a simple IRC server that can handle multiple c
     <li>Manage multiple channels and allow clients to join and leave channels.</li>
     <li>Broadcast messages to all clients in a channel.</li>
     <li>Handle private messages between clients.</li>
+</ul>
+</section>
+
+<div align="left">
+
+### Bonus Part![---------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
+<section id="bonus-part">
+
+<p>Your IRC server must implement the following features:</p>
+<ul>
     <li>Implement a bot that responds to specific commands (e.g., <code>!hello</code>).</li>
     <li>Support file transfers using the DCC protocol.</li>
 </ul>
@@ -92,23 +86,6 @@ The IRC project is about creating a simple IRC server that can handle multiple c
 <ul>
     <li><code>bot.cpp</code>: Bot class implementation, including command handling and message responding.</li>
 </ul>
-</section>
-
-<div align="left">
-
-### Feedback![---------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
-<section id="feedback">
-
-<h3>By [Your Name]</h3>
-<p>The IRC project is a challenging yet rewarding project that provides a deep understanding of network programming and the IRC protocol. It requires careful planning and implementation to handle multiple clients, channels, and commands efficiently.</p>
-<p>Working on this project helped me improve my skills in socket programming, error handling, and memory management. It also taught me the importance of thorough testing and debugging to ensure a robust and reliable server.</p>
-
-<div align="left">
-
-### Organization and Task Distribution![---------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
-<section id="organization-and-task-distribution">
-
-<p>In our group, we decided to clearly separate our responsibilities: one member handled the server setup and client management, while the other focused on implementing the IRC commands and the bot. This division of labor allowed us to work efficiently and effectively, leveraging each other's strengths.</p>
 </section>
 
 <div align="left">
@@ -156,5 +133,4 @@ The IRC project is about creating a simple IRC server that can handle multiple c
 
 <p>Thanks to my project partner for their collaboration and support throughout this project. Their expertise and dedication were instrumental in the successful completion of the IRC server.</p>
 
-</div>
 </div>
