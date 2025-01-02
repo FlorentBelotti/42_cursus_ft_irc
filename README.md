@@ -131,6 +131,14 @@ The IRC project is about creating a simple IRC server that can handle multiple c
 ### Thanks![---------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 <section id="thanks">
 
-<p>Thanks to my project partner for their collaboration and support throughout this project. Their expertise and dedication were instrumental in the successful completion of the IRC server.</p>
+<p>
+To <a href="https://github.com/ThomasRibalta">ThomasRibalta </a>: who provided guidance on the use of Hexchat.
+</p>
+<p>
+To <a href="https://github.com/nargin">Nargin </a>: who provided guidance on the project structure.
+</p>
+<p>
+To <a href="https://github.com/romlambe">Romlamb </a>: my mate who supported me for the entire project.
+</p>
 
 </div>
