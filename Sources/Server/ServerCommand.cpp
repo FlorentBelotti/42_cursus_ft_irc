@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/01 16:56:28 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:17:56 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
         std::string args = (spacePos != std::string::npos) ? msg.substr(spacePos + 1) : "";
         processClientCommand(command, args, user_fd);
     } else {
-        std::cout << "is not a command" << std::endl;
+        std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << command << ": is not a command" << std::endl;
     }
 }
 

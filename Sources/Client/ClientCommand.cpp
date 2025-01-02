@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/01 17:32:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:51:01 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,6 +285,12 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
             sendErrorMessage("Client " + target + " does not exist.");
             return;
         }
+
+        if (arguments[1] == ":DCC") {
+            targetClient->sendMessage(":" + getClientNickname() + " PRIVMSG " + target + " :\x01" + message + "\x01\r\n");
+            return;
+        }
+
         targetClient->sendMessage(":" + getClientNickname() + " PRIVMSG " + target + " :" + message + "\r\n");
     }
 }
