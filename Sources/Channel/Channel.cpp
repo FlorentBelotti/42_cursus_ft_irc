@@ -6,11 +6,11 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/31 15:34:09 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:55:48 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/Channel.hpp"
+#include "../../Includes/Channel.hpp"
 
 // Constructor
 
@@ -123,9 +123,6 @@ void Channel::removeOperator(Client *client) {
     if (it != _channelOperators.end()) {
         _channelOperators.erase(it);
     }
-    // if (_channelOperators.empty()) {
-    //     server->removeServerChannel(getChannelName());
-    // }
 }
 
 // Methods

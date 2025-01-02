@@ -6,12 +6,14 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 14:18:53 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/01 17:39:24 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:55:29 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Bot.hpp"
 #include <iostream>
+
+// Bot constructor
 
 Bot::Bot(int newClientFd, std::string hostname) : Client(newClientFd, hostname) {
     setClientNickname("Bot");
@@ -27,6 +29,8 @@ Bot::botCommands Bot::botDefineCommand(const std::string &command) {
     if (command == "!help") return HELP;
     throw std::invalid_argument("try <!help>");
 }
+
+// Bot commands
 
 void Bot::botHelloCommand(Channel *channel, Client *target) {
     std::string response = "Hello " + target->getClientNickname() + "\r\n";

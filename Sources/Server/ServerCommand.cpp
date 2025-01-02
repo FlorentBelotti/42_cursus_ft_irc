@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/18 17:45:41 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/02 15:17:56 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:56:06 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void Server::handleMessage(std::string const &msg, int user_fd) {
     
     size_t  spacePos = msg.find(' ');
     std::string command = msg.substr(0, spacePos);
-    // std::cout << BLUE << "[Command]: " << RESET_COLOR << command << std::endl;
 
     if (isCommand(command)) {
         std::string args = (spacePos != std::string::npos) ? msg.substr(spacePos + 1) : "";

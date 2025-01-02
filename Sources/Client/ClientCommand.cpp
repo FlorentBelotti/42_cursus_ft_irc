@@ -6,14 +6,14 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/02 15:51:01 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:56:16 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/Client.hpp"
 #include "../../Includes/Bot.hpp"
 
-// Commands utils
+// Client Commands utils
 
 bool Client::isValidName(const std::string& name, size_t max_length) {
     if (name.length() > max_length || name.length() < 1) {
@@ -31,9 +31,7 @@ std::vector<std::string> Client::getArgsVector(const std::string &args) {
     std::vector<std::string> argsVector;
     std::istringstream iss(args);
     std::string token;
-    int i = 0;
     while (iss >> token) {
-        std::cout << MAGENTA << "arguments[" << i++ << "] : " << token << std::endl;
         argsVector.push_back(token);
     }
     return argsVector;
@@ -46,7 +44,7 @@ bool isBotCommand(const std::string &cmd) {
         return false;
 }
 
-// Commands
+// Client commands
 
 void Client::clientPassCommand(const std::string &args, Server *server) {
 
@@ -197,8 +195,6 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
         sendErrorMessage("You are not logged in. Please set your password first.");
         return;
     }
-    
-    // Check if channel exists
     
     size_t spacePos = args.find(' ');
     if (spacePos == std::string::npos) {
@@ -388,8 +384,6 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
         sendErrorMessage("Client " + nickname + " does not exist.");
         return;
     }
-
-    // Send invite
     
     std::cout << "invitation to " << invitedClient->getClientNickname() << std::endl;
     channel->addChannelInvitedClient(invitedClient);
@@ -421,22 +415,16 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         reason += arguments[i];
     }
 
-    // Check if channel exists
-
     Channel* channel = server->getChannelByName(channelName);
     if (!channel) {
         sendErrorMessage("Channel " + channelName + " does not exist.");
         return;
     }
     
-    // Check if client is an operator
-    
     if (!channel->isOperator(this)) {
         sendErrorMessage("You are not an operator of channel " + channelName + ".");
         return;
     }
-
-    // Check if client exists
 
     Client* kickedClient = server->getClientByNickname(nickname);
     if (!kickedClient) {
@@ -449,8 +437,6 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
         return;
     }
 
-    // Kick client
-    
     std::string kickMsg = ":" + getClientNickname() + " KICK " + channelName + " " + nickname + " :" + reason + "\r\n";
     channel->removeClient(kickedClient);
     kickedClient->removeClientChannel(channelName);
