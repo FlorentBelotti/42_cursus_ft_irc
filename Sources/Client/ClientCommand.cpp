@@ -124,8 +124,15 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         return;
     }
     
+    std::cout << 0 << std::endl;
+
     std::vector <std::string> arguments = getArgsVector(args);
-    
+    if (arguments.size() < 1){
+        sendErrorMessage("Usage: /join <channel>");
+        return ;
+    }
+    std::cout << 1 << std::endl;
+
     if (server->getServerChannels().find(arguments[0]) != server->getServerChannels().end()) {
 
         Channel* channel = server->getServerChannels()[arguments[0]];
@@ -165,10 +172,10 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         }
     }
     
+
+
     else {
-        
-        
-        
+        std::cout << 3 << std::endl;
         if (arguments[0][0] != '#' && arguments[0][0] != '&') {
             sendErrorMessage("Usage: Channel name must start with a '#' or '&' character.");
             return;
@@ -183,6 +190,11 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         channel->addClient(this);
         channel->addChannelOperators(this);
         channel->broadcast(":" + getClientNickname() + " JOIN " + channel->getChannelName() + "\r\n");
+        channel->setChannelLimitationStatus(false);
+        channel->setChannelInviteStatus(false);
+        channel->setChannelProtectionStatus(false);
+        channel->setChannelTopicProtectionStatus(false);
+        channel->setChannelTopic("");
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +o " + getClientNickname() + "\r\n");
     }
 
@@ -318,6 +330,11 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     }
     
     std::vector<std::string> arguments = getArgsVector(args);
+    if (arguments.size() < 1) {
+        sendErrorMessage("USAGE: /TOPIC <#ChannelName>");
+        return;
+    }
+
     std::string channelName = arguments[0];
     
     Channel* channel = server->getChannelByName(channelName);
@@ -331,7 +348,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
         return;
     }
     
-    std::string topic = &arguments[1][1];
+    std::string topic = &arguments[1][0];
 
     if (channel->getChannelTopicProtectionStatus()) {
         if (!channel->isOperator(this)) {
