@@ -6,13 +6,14 @@
 #    By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 16:56:14 by fbelotti          #+#    #+#              #
-#    Updated: 2025/01/06 13:42:52 by fbelotti         ###   ########.fr        #
+#    Updated: 2025/01/06 13:43:49 by fbelotti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_irc
 AUTHOR = Florent Belotti
 AUTHOR_2 = Romain Lambert
+AUTHOR_3 = Theo Gerardin
 
 CXX = c++
 RM = rm -f
@@ -36,6 +37,7 @@ announce:
 	@echo "Project: $(NAME)\n"
 	@echo "Author: $(AUTHOR)"
 	@echo "Author: $(AUTHOR_2)"
+	@echo "Author: $(AUTHOR_3)"
 	@echo "===================================\n"
 
 intro:
