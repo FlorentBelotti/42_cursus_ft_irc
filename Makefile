@@ -6,7 +6,7 @@
 #    By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/17 16:56:14 by fbelotti          #+#    #+#              #
-#    Updated: 2024/12/21 19:15:32 by fbelotti         ###   ########.fr        #
+#    Updated: 2025/01/06 13:42:52 by fbelotti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ INCLUDES = -I./Includes -I/opt/homebrew/Cellar/readline/8.2.10/include
 SRCDIR = .
 OBJDIR = obj
 
-SRC = $(shell find $(SRCDIR) -name \*.cpp -type f -not -path "./Test/*" -print)
+SRC = $(shell find $(SRCDIR) -name \*.cpp -type f -not -path "./Client_tester/*" -print)
 OBJ = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRC))
 
 DEPS = $(OBJ:.o=.d)
