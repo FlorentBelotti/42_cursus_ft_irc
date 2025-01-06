@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/06 17:09:20 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 21:37:36 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -489,6 +489,10 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     }
 
     if (arguments[1] == "+o") {
+        if (arguments.size() < 3) {
+            sendErrorMessage("[USAGE]: /mode +o <user>");
+            return;
+        }
         Client *targetClient = server->getClientByNickname(arguments[2]);
         if (!targetClient) {
             sendErrorMessage("Client " + arguments[2] + " does not exist.");
@@ -502,6 +506,10 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +o " + targetClient->getClientNickname() + "\r\n");
         return;
     } else if (arguments[1] == "-o") {
+        if (arguments.size() < 3) {
+            sendErrorMessage("[USAGE]: /mode +o <user>");
+            return;
+        }
         Client *targetClient = server->getClientByNickname(arguments[2]);
         if (!targetClient) {
             sendErrorMessage("Client " + arguments[2] + " does not exist.");
