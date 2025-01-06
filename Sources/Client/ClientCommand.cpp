@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/06 21:37:36 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 22:09:10 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
         return;
     }
     if (arguments.size() != 1) {
-        sendErrorMessage("Usage: /pass <password>");
+        sendErrorMessage("[USAGE]: /pass <password>");
         return;
     }
     if (getClientPswdTries() > 3) {
@@ -85,12 +85,12 @@ void Client::clientNicknameCommand(const std::string &args) {
     std::vector<std::string> arguments = getArgsVector(args);
 
     if (arguments.size() != 1) {
-        sendErrorMessage("Usage: /nickname <nickname>");
+        sendErrorMessage("[USAGE]: /nickname <nickname>");
         return;
     }
 
     if (!isValidName(arguments[0], 9)) {
-        sendErrorMessage("Usage: Nickname must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.");
+        sendErrorMessage("[USAGE]: Nickname must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.");
         return;
     }
 
@@ -104,7 +104,7 @@ void Client::clientUserCommand(const std::string &args) {
     std::vector<std::string> argsVector = getArgsVector(args);
     
     if (argsVector.size() != 4) {
-        sendErrorMessage("Usage: /username <username> <hostname> <servername> <realname>");
+        sendErrorMessage("[USAGE]: /username <username> <hostname> <servername> <realname>");
         return;
     }
 
@@ -126,7 +126,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     
     std::vector <std::string> arguments = getArgsVector(args);
     if (arguments.size() < 1){
-        sendErrorMessage("Usage: /join <channel>");
+        sendErrorMessage("[USAGE]: /join <channel>");
         return ;
     }
     
@@ -134,9 +134,14 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
 
         Channel* channel = server->getServerChannels()[arguments[0]];
 
+        if(channel->isChannelClient(getClientNickname())) {
+            sendErrorMessage("Already a client of this channel");
+            return;
+        }
+
         if (channel->getChannelProtectionStatus()) {
             if (arguments.size() < 2) {
-                sendErrorMessage("Usage: /join <channel> <password>");
+                sendErrorMessage("[USAGE]: /join <channel> <password>");
                 return;
             }
             if (channel->getChannelPassword() != arguments[1]) {
@@ -171,11 +176,11 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     
     else {
         if (arguments[0][0] != '#' && arguments[0][0] != '&') {
-            sendErrorMessage("Usage: Channel name must start with a '#' or '&' character.");
+            sendErrorMessage("[USAGE]: Channel name must start with a '#' or '&' character.");
             return;
         }
         if (!isValidName(&arguments[0][1], 9)) {
-            sendErrorMessage("Usage: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.");
+            sendErrorMessage("[USAGE]: Channel name must be between 1 and 9 characters and contain only letters, digits, '_', and '-'.");
             return;
         }
         server->addServerChannel(arguments[0], new Channel(args));
@@ -204,12 +209,12 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
     
     size_t spacePos = args.find(' ');
     if (spacePos == std::string::npos) {
-        sendErrorMessage("Usage: /part <#channel>");
+        sendErrorMessage("[USAGE]: /part <#channel>");
         return;
     }
     std::string channelName = args.substr(0, spacePos);
     if (channelName[0] != '#' && channelName[0] != '&') {
-        sendErrorMessage("Usage: Channel name must start with a '#' or '&' character.");
+        sendErrorMessage("[USAGE]: Channel name must start with a '#' or '&' character.");
         return;
     }
     if (server->getServerChannels().find(channelName) == server->getServerChannels().end()) {
@@ -245,7 +250,7 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     std::vector<std::string> arguments = getArgsVector(args);
     
     if (arguments.size() < 2) {
-        sendErrorMessage("Usage: /privmsg <target> <message>");
+        sendErrorMessage("[USAGE]: /privmsg <target> <message>");
         return;
     }
 
@@ -325,7 +330,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     std::vector<std::string> arguments = getArgsVector(args);
     if (arguments.size() < 1) {
-        sendErrorMessage("USAGE: /TOPIC <#ChannelName>");
+        sendErrorMessage("[USAGE]: /TOPIC <#ChannelName>");
         return;
     }
 
@@ -372,7 +377,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
     std::vector<std::string> arguments = getArgsVector(args);
     
     if (arguments.size() != 2) {
-        sendErrorMessage("Usage: /invite <nickname> <channel>");
+        sendErrorMessage("[USAGE]: /invite <nickname> <channel>");
         return;
     }
 
@@ -413,7 +418,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
     std::vector<std::string> arguments = getArgsVector(args);
     
     if (arguments.size() < 3) {
-        sendErrorMessage("Usage: /kick <nickname> <channel> <reason>");
+        sendErrorMessage("[USAGE]: /kick <nickname> <channel> <reason>");
         return;
     }
 
@@ -439,12 +444,12 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 
     Client* kickedClient = server->getClientByNickname(nickname);
     if (!kickedClient) {
-        sendErrorMessage("Usage: Client " + nickname + " does not exist.");
+        sendErrorMessage("[USAGE]: Client " + nickname + " does not exist.");
         return;
     }
 
     if (kickedClient == this) {
-        sendErrorMessage("Usage: You cannot kick yourself.");
+        sendErrorMessage("[USAGE]: You cannot kick yourself.");
         return;
     }
 
@@ -459,7 +464,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
 
     std::vector<std::string> arguments = getArgsVector(args);
     if (arguments.size() == 0) {
-        sendErrorMessage("Usage: /mode <channel> <mode> <nickname>");
+        sendErrorMessage("[USAGE]: /mode <channel> <mode> <nickname>");
         return;
     }
 

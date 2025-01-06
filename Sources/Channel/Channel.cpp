@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/06 17:07:32 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 22:08:41 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,4 +196,13 @@ bool Channel::isInvited(const Client* client) const {
 
 bool Channel::hasOperator() const {
     return !_channelOperators.empty();
+}
+
+bool Channel::isChannelClient(const std::string &nickname) {
+    for (std::vector<Client*>::const_iterator it = _channelClients.begin(); it != _channelClients.end(); ++it) {
+        if ((*it)->getClientNickname() == nickname) {
+            return true;
+        }
+    }
+    return false;
 }

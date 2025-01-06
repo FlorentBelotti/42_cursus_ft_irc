@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 15:29:02 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/31 15:12:37 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 22:07:28 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,4 +86,5 @@ class Channel {
         bool isOperator(const Client *client) const;
         bool hasOperator() const;
         bool isInvited(const Client* client) const;
+        bool isChannelClient(const std::string &nickname);
 };
