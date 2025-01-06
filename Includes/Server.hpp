@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/31 15:43:29 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 16:24:34 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,7 @@ class Server {
 
         void    closeFileDescriptors();
         void    clearClients();
+        void    clearChannels();
 
     // Error(s) management
     

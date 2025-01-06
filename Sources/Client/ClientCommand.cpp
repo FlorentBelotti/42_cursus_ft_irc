@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/02 15:56:16 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 17:09:20 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,15 +124,12 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         return;
     }
     
-    std::cout << 0 << std::endl;
-
     std::vector <std::string> arguments = getArgsVector(args);
     if (arguments.size() < 1){
         sendErrorMessage("Usage: /join <channel>");
         return ;
     }
-    std::cout << 1 << std::endl;
-
+    
     if (server->getServerChannels().find(arguments[0]) != server->getServerChannels().end()) {
 
         Channel* channel = server->getServerChannels()[arguments[0]];
@@ -172,10 +169,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
         }
     }
     
-
-
     else {
-        std::cout << 3 << std::endl;
         if (arguments[0][0] != '#' && arguments[0][0] != '&') {
             sendErrorMessage("Usage: Channel name must start with a '#' or '&' character.");
             return;

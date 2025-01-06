@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/17 13:21:28 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/02 15:55:48 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 17:07:32 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,20 @@ Channel::Channel(std::string channelName) : _channelName(channelName) {
 // Destructor
 
 Channel::~Channel() {
-    _channelClients.clear();
+    // for (std::vector<Client*>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it) {
+    //     delete *it;
+    // }
+    // _channelClients.clear();
+
+    // for (std::vector<Client*>::iterator it = _channelOperators.begin(); it != _channelOperators.end(); ++it) {
+    //     delete *it;
+    // }
+    // _channelOperators.clear();
+
+    // for (std::vector<Client*>::iterator it = _channelInvited.begin(); it != _channelInvited.end(); ++it) {
+    //     delete *it;
+    // }
+    // _channelInvited.clear();
 }
 
 // Getters

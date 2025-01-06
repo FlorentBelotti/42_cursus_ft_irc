@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2024/12/31 15:35:50 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/06 17:05:52 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,10 @@ Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _s
 
 Server::~Server() {
     std::cout << RED << "[SERVER]: Shut down." << RESET_COLOR << std::endl;
+    clearClients();
+    closeFileDescriptors();
+    clearChannels();
+    // delete getServerBot();
 }
 
 // Server Loop
@@ -96,11 +100,11 @@ void Server::handleClientEvent(int user_fd) {
     // Client disconnected
     
     else {
+        std::cout << RED << "[" << getClients()[user_fd]->getClientHostname() << "]: Forcefully disconnected." << RESET_COLOR << std::endl;
         epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
-        std::cout << RED << "[" << getClients()[user_fd]->getClientHostname() << "]: Disconnected." << RESET_COLOR << std::endl;
-        delete getClients()[user_fd];
-        getClients().erase(user_fd);
         close(user_fd);
+        // getClients().erase(user_fd);
+        // delete getClients()[user_fd];
     }
 }
 
@@ -128,8 +132,8 @@ void Server::serverLoop() {
             }
         }
     }
-    clearClients();
-    closeFileDescriptors();
+    // clearClients();
+    // closeFileDescriptors();
 }
 
 // Server's cleaner
@@ -140,6 +144,13 @@ void Server::clearClients() {
         close(it->first);
         delete it->second;
     }
+}
+
+void Server::clearChannels() {
+    for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+        delete it->second;
+    }
+    _channels.clear();  
 }
 
 void Server::closeFileDescriptors() {
