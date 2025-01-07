@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/06 22:09:10 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 15:50:26 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,18 +207,19 @@ void Client::clientPartCommand(const std::string &args, Server *server) {
         return;
     }
     
-    size_t spacePos = args.find(' ');
-    if (spacePos == std::string::npos) {
-        sendErrorMessage("[USAGE]: /part <#channel>");
-        return;
+    std::vector <std::string> arguments = getArgsVector(args);
+    if (arguments.size() < 1){
+        sendErrorMessage("[USAGE]: /part <channel>");
+        return ;
     }
-    std::string channelName = args.substr(0, spacePos);
+    
+    std::string channelName = arguments[0];
     if (channelName[0] != '#' && channelName[0] != '&') {
         sendErrorMessage("[USAGE]: Channel name must start with a '#' or '&' character.");
         return;
     }
     if (server->getServerChannels().find(channelName) == server->getServerChannels().end()) {
-        sendErrorMessage("Channel doesn't exist.");
+        sendErrorMessage("[ERROR]: Channel doesn't exist.");
         return;
     }
     

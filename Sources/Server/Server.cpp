@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/06 17:05:52 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 14:37:12 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@ Server::Server(std::string const &pswd, int const &port) : _serverPswd(pswd), _s
 // Destructeur
 
 Server::~Server() {
-    std::cout << RED << "[SERVER]: Shut down." << RESET_COLOR << std::endl;
     clearClients();
     closeFileDescriptors();
     clearChannels();
+    std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Shut down." << std::endl;
     // delete getServerBot();
 }
 
@@ -158,12 +158,14 @@ void Server::closeFileDescriptors() {
         close(getServerFd());
         setServerFd(-1);
     }
+    std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Server's socket closed." << std::endl;
     if (getEpollFd() >= 0) {
         close(getEpollFd());
         setEpollFd(-1);
     }
+    std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Server's epoll closed." << std::endl;
     setServerStatus(false);
-    std::cerr << YELLOW << "[SERVER]: Cleanup completed." << RESET_COLOR << std::endl;
+    std::cout << YELLOW << "[SERVER]:" << RESET_COLOR << " Cleanup completed." << std::endl;
 }
 
 // Setters
