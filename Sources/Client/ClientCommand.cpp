@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 23:37:30 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/08 00:18:48 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -344,7 +344,7 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     std::vector<std::string> arguments = getArgsVector(args);
     if (arguments.size() < 1) {
-        sendErrorMessage("[USAGE]: /TOPIC <#ChannelName>");
+        sendErrorMessage("[USAGE]: /TOPIC <#ChannelName> optionnal:<topic>");
         return;
     }
 
@@ -358,6 +358,11 @@ void Client::clientTopicCommand(const std::string &args, Server *server) {
     
     if (arguments.size() == 1) {
         channel->userBroadcast(":" + getClientNickname() + " NOTICE " + channel->getChannelName() + " :Topic of " + channel->getChannelName() + " is " + channel->getChannelTopic() + "\r\n", this);
+        return;
+    }
+
+    if (arguments.size() != 2) {
+        sendErrorMessage("[USAGE]: /TOPIC <#ChannelName> <topic>");
         return;
     }
     
@@ -477,7 +482,7 @@ void Client::clientKickCommand(const std::string &args, Server *server) {
 void Client::clientModeCommand(const std::string &args, Server *server) {
 
     std::vector<std::string> arguments = getArgsVector(args);
-    if (arguments.size() == 0) {
+    if (arguments.size() < 2) {
         sendErrorMessage("[USAGE]: /mode <channel> <mode> <nickname>");
         return;
     }
@@ -488,27 +493,31 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         return;
     }
 
-    if (arguments.size() < 2) {
-        return ;
-    }
-
     if (!channel->isOperator(this)) {
         sendErrorMessage("You are not an operator of channel " + channel->getChannelName() + ".");
         return;
     }
     
     if (arguments[1] == "+i") {
+        if (arguments.size() > 2) {
+            sendErrorMessage("[USAGE]: /mode <#channel> +i");
+            return;
+        }
         channel->setChannelInviteStatus(true);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +i\r\n");
         return;
     } else if (arguments[1] == "-i") {
+        if (arguments.size() > 2) {
+            sendErrorMessage("[USAGE]: /mode <#channel> -i");
+            return;
+        }
         channel->setChannelInviteStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -i\r\n");
         return;
     }
 
     if (arguments[1] == "+o") {
-        if (arguments.size() < 3) {
+        if (arguments.size() < 3 || arguments.size() > 3) {
             sendErrorMessage("[USAGE]: /mode +o <user>");
             return;
         }
@@ -525,7 +534,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +o " + targetClient->getClientNickname() + "\r\n");
         return;
     } else if (arguments[1] == "-o") {
-        if (arguments.size() < 3) {
+        if (arguments.size() < 3 || arguments.size() > 3) {
             sendErrorMessage("[USAGE]: /mode +o <user>");
             return;
         }
@@ -540,7 +549,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
     } 
     
     else if (arguments[1] == "+k") {
-        if (arguments.size() < 3) {
+        if (arguments.size() < 3 || arguments.size() > 3) {
             sendErrorMessage("Missing password.");
             return;
         }
@@ -549,6 +558,10 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +k " + arguments[2] + "\r\n");
         return;
     } else if (arguments[1] == "-k") {
+        if (arguments.size() > 2) {
+            sendErrorMessage("[USAGE]: /mode <#channel> -k");
+            return;
+        }
         channel->setChannelPassword("");
         channel->setChannelProtectionStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -k\r\n");
@@ -557,14 +570,28 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
 
     else if (arguments[1] == "+l") {
         
-        if (arguments.size() < 3) {
-            sendErrorMessage("Missing limit.");
+        if (arguments.size() < 3 || arguments.size() > 3) {
+            sendErrorMessage("[USAGE]: /mode <#channel> +l <limit>");
             return;
         }
 
-        int limit = std::atoi(arguments[2].c_str());
+        std::string limitStr = arguments[2];
+        bool isNumber = true;
+        for (size_t i = 0; i < limitStr.size(); ++i) {
+            if (!std::isdigit(limitStr[i])) {
+                isNumber = false;
+                break;
+            }
+        }
+        
+        if (!isNumber) {
+            sendErrorMessage("[USAGE]: Limit must be a number.");
+            return;
+        }
+        
+        int limit = std::atoi(limitStr.c_str());
         if (limit < 0 || limit > 10) {
-            sendErrorMessage("Limit must be between 0 and 10.");
+            sendErrorMessage("[USAGE]: Limit must be between 0 and 10.");
             return;
         }
 
@@ -573,16 +600,28 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +l " + arguments[2] + "\r\n");
         return;
     } else if (arguments[1] == "-l") {
+        if (arguments.size() > 2) {
+            sendErrorMessage("[USAGE]: /mode <#channel> -l");
+            return;
+        }
         channel->setChannelLimitationStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -l\r\n");
         return;
     }
 
     else if (arguments[1] == "+t") {
+        if (arguments.size() > 2) {
+            sendErrorMessage("[USAGE]: /mode <#channel> +t");
+            return;
+        }
         channel->setChannelTopicProtectionStatus(true);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " +t\r\n");
         return;
     } else if (arguments[1] == "-t") {
+        if (arguments.size() > 2) {
+            sendErrorMessage("[USAGE]: /mode <#channel> -t");
+            return;
+        }
         channel->setChannelTopicProtectionStatus(false);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -t\r\n");
         return;
