@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 16:19:55 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 16:20:26 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void Client::clientUserCommand(const std::string &args) {
     }
 
     setClientUsername(argsVector[0]);
-    std::string successMsg += "[USERNAME]: " + getClientUsername() + "\n";
+    std::string successMsg = "[USERNAME]: " + getClientUsername() + "\n";
     setClientHostname(argsVector[1]);
     successMsg += "[HOSTNAME]: " + getClientHostname() + "\n";
     setClientServername(argsVector[2]);
