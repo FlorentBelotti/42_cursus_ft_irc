@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 16:14:30 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 16:18:43 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,14 +109,14 @@ void Client::clientUserCommand(const std::string &args) {
     }
 
     setClientUsername(argsVector[0]);
+    std::string successMsg = "[USERNAME]: " + getClientUsername() + "\n";
     setClientHostname(argsVector[1]);
+    std::string successMsg = "[HOSTNAME]: " + getClientHostname() + "\n";
     setClientServername(argsVector[2]);
+    std::string successMsg = "[SERVERNAME]: " + getClientServername() + "\n";
     setClientRealname(argsVector[3]);
+    std::string successMsg = "[REALNAME]: " + getClientRealname() + "\n";
     setClientPswdTries(0);
-
-    std::stringstream ss;
-    ss << getClientFd();
-    setClientNickname(ss.str());
     
     std::string successMsg = "[COMMAND]: Client infos updated\n";
     std::cout << GREEN << successMsg << RESET_COLOR << std::endl;
