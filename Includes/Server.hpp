@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 16:31:52 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/06 16:24:34 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 22:20:28 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ class Server {
         void    closeFileDescriptors();
         void    clearClients();
         void    clearChannels();
+        void    clearClientFromChannels(int user_fd);
 
     // Error(s) management
     
@@ -156,16 +157,9 @@ class Server {
         void    addServerChannel(std::string channelName, Channel *channel);
         void    removeServerChannel(std::string channelName);
     
-    // Animation
-        static void    *serverIsRunningAnimation(void *);
-
-    // Dashboard
-        static void *startDashboard(void *arg);
-        void        printDashboard() const;
-
     // Methods
 
-    Channel *getChannelByName(std::string const &channelName);
+        Channel *getChannelByName(std::string const &channelName);
 };
 
 #endif

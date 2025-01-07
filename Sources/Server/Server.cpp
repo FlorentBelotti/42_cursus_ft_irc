@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 14:37:12 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 22:20:17 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ void Server::handleClientEvent(int user_fd) {
     
     else {
         std::cout << RED << "[" << getClients()[user_fd]->getClientHostname() << "]: Forcefully disconnected." << RESET_COLOR << std::endl;
+        clearClientFromChannels(user_fd);
         epoll_ctl(getEpollFd(), EPOLL_CTL_DEL, user_fd, NULL);
         close(user_fd);
         // getClients().erase(user_fd);
@@ -151,6 +152,14 @@ void Server::clearChannels() {
         delete it->second;
     }
     _channels.clear();  
+}
+
+void Server::clearClientFromChannels(int user_fd) {
+    for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+        if (it->second->isChannelClient(getClients()[user_fd]->getClientNickname())) {
+            it->second->removeClient(getClients()[user_fd]);
+        }
+    }
 }
 
 void Server::closeFileDescriptors() {
