@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 16:25:19 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 22:20:17 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 23:17:58 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,10 +155,19 @@ void Server::clearChannels() {
 }
 
 void Server::clearClientFromChannels(int user_fd) {
+    std::string nickname = getClients()[user_fd]->getClientNickname();
     for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
-        if (it->second->isChannelClient(getClients()[user_fd]->getClientNickname())) {
+        if (it->second->isChannelClient(nickname)) {
             it->second->removeClient(getClients()[user_fd]);
         }
+        if (it->second->isOperator(getClients()[user_fd])) {
+            it->second->removeOperator(getClients()[user_fd]);
+        }
+    }
+    std::map<int, Client*>::iterator it = _clients.find(user_fd);
+    if (it != _clients.end()) {
+        delete it->second;
+        _clients.erase(it);
     }
 }
 
