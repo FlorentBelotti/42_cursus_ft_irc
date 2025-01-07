@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 16:20:26 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 16:33:12 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,12 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
     } else {
         setClientPassword(arguments[0]);
         setClientLogStatus(true);
+        if (getClientNickname().empty()) {
+            std::stringstream ss;
+            ss << getClientFd();
+            setClientNickname(ss.str());
+            std::cout << GREEN << "[COMMAND]: Nickname set to " + getClientNickname() << RESET_COLOR << std::endl;
+        }
         sendMessage("You are now successefully logged in.");
         std::cout << GREEN << "[COMMAND]: Password set." << RESET_COLOR << std::endl;   
     }
@@ -417,7 +423,7 @@ void Client::clientInviteCommand(const std::string &args, Server *server) {
 void Client::clientKickCommand(const std::string &args, Server *server) {
 
     if (!_isLogged) {
-        sendErrorMessage("You are not logged in. Please set your password first.");
+        sendErrorMessage("You are not logged in. Please set your nickname and password first.");
         return;
     }
     
