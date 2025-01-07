@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/07 16:33:12 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/07 17:05:23 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,9 +275,11 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
     if (target[0] == '#') {
         
         std::cout << YELLOW << message << std::endl;
-        Channel *channel = server->getServerChannels().find(target)->second;
-        if (!channel)
+        Channel *channel = server->getChannelByName(target);
+        if (channel == NULL) {
+            sendErrorMessage("Channel " + target + " does not exist.");
             return;
+        }
         
         std::vector<Client*> clients = channel->getChannelClients();
         
