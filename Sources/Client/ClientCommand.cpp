@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/08 13:24:59 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/08 13:29:09 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void Client::clientPassCommand(const std::string &args, Server *server) {
         sendErrorMessage("[USAGE]: /pass <password>");
         return;
     }
-    if (getClientPswdTries() > 3) {
+    if (getClientPswdTries() >= 3) {
         sendErrorMessage("You have reached the maximum number of password tries.");
         close(getClientFd());
         epoll_ctl(server->getEpollFd(), EPOLL_CTL_DEL, getClientFd(), NULL);
