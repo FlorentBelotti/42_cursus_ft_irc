@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/08 13:29:09 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/08 13:48:46 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -545,8 +545,18 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
         }
         channel->removeOperator(targetClient);
         sendMessage(":" + getClientNickname() + " MODE " + channel->getChannelName() + " -o " + targetClient->getClientNickname() + "\r\n");
+        
+        if (!channel->hasOperator()) {
+            std::string channelName = channel->getChannelName();
+            std::vector<Client*> clientsToRemove = channel->getChannelClients();
+            for (std::vector<Client*>::iterator it = clientsToRemove.begin(); it != clientsToRemove.end(); ++it) {
+                channel->removeClient(*it);
+                (*it)->sendMessage(":" + (*it)->getClientNickname() + " PART " + channel->getChannelName() + "\r\n");
+                (*it)->removeClientChannel(channelName);
+            }
+        server->removeServerChannel(channelName);
         return;
-    } 
+    }
     
     else if (arguments[1] == "+k") {
         if (arguments.size() < 3 || arguments.size() > 3) {
