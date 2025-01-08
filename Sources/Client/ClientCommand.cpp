@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/08 13:48:46 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/08 13:52:32 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -556,6 +556,7 @@ void Client::clientModeCommand(const std::string &args, Server *server) {
             }
         server->removeServerChannel(channelName);
         return;
+        }
     }
     
     else if (arguments[1] == "+k") {
