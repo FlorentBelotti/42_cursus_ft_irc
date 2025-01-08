@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/08 00:18:48 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/08 13:24:59 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,7 +272,7 @@ void    Client::clientPrivmsgCommand(const std::string &args, Server *server) {
         message = message.substr(1);
     }
 
-    if (target[0] == '#') {
+    if (target[0] == '#' || target[0] == '&') {
         
         std::cout << YELLOW << message << std::endl;
         Channel *channel = server->getChannelByName(target);
