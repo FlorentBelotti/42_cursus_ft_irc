@@ -6,7 +6,7 @@
 /*   By: fbelotti <fbelotti@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 02:23:11 by fbelotti          #+#    #+#             */
-/*   Updated: 2025/01/08 13:52:32 by fbelotti         ###   ########.fr       */
+/*   Updated: 2025/01/09 19:07:28 by fbelotti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ void Client::clientJoinCommand(const std::string &args, Server *server) {
     }
     
     std::vector <std::string> arguments = getArgsVector(args);
-    if (arguments.size() < 1 || arguments.size() > 1){
+    if (arguments.size() < 1){
         sendErrorMessage("[USAGE]: /join <#channel>");
         return ;
     }
